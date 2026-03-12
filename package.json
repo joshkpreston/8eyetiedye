@@ -1,0 +1,36 @@
+{
+  "name": "8eyetiedye",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "lint": "eslint . && prettier --check .",
+    "lint:fix": "eslint --fix . && prettier --write .",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^13.1.0",
+    "@astrojs/svelte": "^8.0.0",
+    "@tailwindcss/vite": "^4.2.1",
+    "astro": "^6.0.3",
+    "stripe": "^20.4.1",
+    "svelte": "^5.53.10",
+    "tailwindcss": "^4.2.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260312.1",
+    "@types/node": "^25.4.0",
+    "@typescript-eslint/parser": "^8.57.0",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-astro": "^1.6.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-svelte": "^3.5.1",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.72.0"
+  }
+}

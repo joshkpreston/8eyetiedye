@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand colors — tie-dye spectrum */
+  --color-dye-purple: #7c3aed;
+  --color-dye-purple-dark: #4c1d95;
+  --color-dye-blue: #2563eb;
+  --color-dye-blue-electric: #3b82f6;
+  --color-dye-pink: #ec4899;
+  --color-dye-pink-hot: #f472b6;
+  --color-dye-green: #22c55e;
+  --color-dye-lime: #a3e635;
+  --color-dye-orange: #f97316;
+  --color-dye-yellow: #facc15;
+  --color-dye-red: #ef4444;
+  --color-dye-cyan: #06b6d4;
+
+  /* Surface colors */
+  --color-surface-900: #0a0a0f;
+  --color-surface-800: #111118;
+  --color-surface-700: #1a1a24;
+  --color-surface-600: #252532;
+
+  /* Rarity colors */
+  --color-rarity-common: #9ca3af;
+  --color-rarity-uncommon: #22c55e;
+  --color-rarity-rare: #7c3aed;
+  --color-rarity-legendary: #f59e0b;
+  --color-rarity-mythic: #ef4444;
+
+  /* Fonts */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/* Base styles */
+body {
+  @apply bg-surface-900 text-white font-body antialiased;
+}
+
+/* Tie-dye gradient utilities */
+@utility dye-gradient-hero {
+  background: linear-gradient(
+    135deg,
+    var(--color-dye-purple) 0%,
+    var(--color-dye-blue) 25%,
+    var(--color-dye-pink) 50%,
+    var(--color-dye-orange) 75%,
+    var(--color-dye-lime) 100%
+  );
+}
+
+@utility dye-gradient-text {
+  background: linear-gradient(
+    90deg,
+    var(--color-dye-purple),
+    var(--color-dye-pink),
+    var(--color-dye-orange)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility dye-glow {
+  box-shadow:
+    0 0 20px rgba(124, 58, 237, 0.3),
+    0 0 40px rgba(236, 72, 153, 0.2),
+    0 0 60px rgba(34, 197, 94, 0.1);
+}

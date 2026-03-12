@@ -1,0 +1,155 @@
+export const prerender = false;
+
+import type { APIRoute } from "astro";
+import Stripe from "stripe";
+import { getProduct } from "../../../lib/products";
+import { createPrintfulOrder } from "../../../lib/pod/printful";
+
+export const POST: APIRoute = async ({ request, locals }) => {
+  const env = locals.runtime.env;
+  const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+
+  const body = await request.text();
+  const sig = request.headers.get("stripe-signature");
+
+  if (!sig) {
+    return new Response("Missing signature", { status: 400 });
+  }
+
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      sig,
+      env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (err) {
+    console.error("Webhook signature verification failed:", err);
+    return new Response("Invalid signature", { status: 400 });
+  }
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const meta = session.metadata!;
+
+    const designId = meta.designId;
+    const productId = meta.productId;
+    const size = meta.size;
+    const rarity = meta.rarity;
+
+    // Get design data
+    const designData = await env.SESSIONS.get(`design:${designId}`);
+    const design = designData ? JSON.parse(designData) : null;
+
+    // Persist design to D1
+    const orderId = crypto.randomUUID();
+    const product = getProduct(productId);
+
+    if (!product) {
+      console.error(`Product not found: ${productId}`);
+      return new Response("OK", { status: 200 });
+    }
+
+    try {
+      // Save design permanently
+      await env.DB.prepare(
+        `INSERT INTO designs (id, session_id, user_id, image_url, prompt, rarity, purchased_at, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?)`,
+      )
+        .bind(
+          designId,
+          design?.sessionId || "",
+          session.customer_email || "",
+          `/api/design/${designId}/image`,
+          design?.prompt || "",
+          rarity,
+          design?.createdAt || new Date().toISOString(),
+        )
+        .run();
+
+      // Create order record
+      await env.DB.prepare(
+        `INSERT INTO orders (id, design_id, stripe_session_id, stripe_customer_id, pod_provider, product_type, variant_id, status, amount_cents)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'paid', ?)`,
+      )
+        .bind(
+          orderId,
+          designId,
+          session.id,
+          session.customer || "",
+          product.podProvider,
+          productId,
+          size,
+          session.amount_total || product.priceCents,
+        )
+        .run();
+
+      // Remove KV TTL by re-storing without expiration (design is now permanent)
+      if (design) {
+        await env.SESSIONS.put(
+          `design:${designId}`,
+          JSON.stringify({ ...design, purchased: true }),
+        );
+      }
+
+      // Place POD order (async — don't block webhook response)
+      // In production, this would be a queue/durable object
+      if (product.podProvider === "printful" && env.PRINTFUL_API_KEY) {
+        try {
+          const customerDetails = session.customer_details;
+          const address = customerDetails?.address;
+
+          if (address && product.printfulVariantIds) {
+            const variantId = product.printfulVariantIds[size];
+            if (variantId) {
+              // Get public URL for the design image
+              const imageUrl = design?.r2Key
+                ? `https://8eyetiedye-designs.r2.dev/${design.r2Key}`
+                : "";
+
+              const printfulOrder = await createPrintfulOrder(
+                env.PRINTFUL_API_KEY,
+                {
+                  name: customerDetails?.name || "",
+                  address1: address.line1 || "",
+                  city: address.city || "",
+                  state_code: address.state || "",
+                  country_code: address.country || "",
+                  zip: address.postal_code || "",
+                  email: customerDetails?.email || "",
+                },
+                [
+                  {
+                    variant_id: variantId,
+                    quantity: 1,
+                    files: [
+                      {
+                        type: "default",
+                        url: imageUrl,
+                      },
+                    ],
+                  },
+                ],
+                orderId,
+              );
+
+              // Update order with POD order ID
+              await env.DB.prepare(
+                `UPDATE orders SET pod_order_id = ?, status = 'processing' WHERE id = ?`,
+              )
+                .bind(String(printfulOrder.result.id), orderId)
+                .run();
+            }
+          }
+        } catch (podErr) {
+          console.error("POD order placement failed:", podErr);
+          // Don't fail the webhook — order is still recorded
+        }
+      }
+    } catch (dbErr) {
+      console.error("Database operation failed:", dbErr);
+    }
+  }
+
+  return new Response("OK", { status: 200 });
+};

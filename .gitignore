@@ -10,3 +10,8 @@ Thumbs.db
 .idea/
 .env
 .env.*
+.env.local
+*.log
+.svelte-kit/
+.wrangler/
+.dev.vars

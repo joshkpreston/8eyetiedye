@@ -1,0 +1,85 @@
+---
+import Base from "../layouts/Base.astro";
+
+const faqs = [
+  {
+    q: "How does it work?",
+    a: "Hit 'Spin the Web' and our AI generates a completely unique tie-dye pattern just for you. You get 3 free rolls per session. If you love a design, you can buy it as a premium printed tee, hoodie, or tie.",
+  },
+  {
+    q: "Are the designs really unique?",
+    a: "Yes! Every single design is generated fresh by AI. No two patterns are ever the same. Once generated, that exact design will never be created again.",
+  },
+  {
+    q: "What are rarity tiers?",
+    a: "Every roll has a rarity level: Common (70%), Uncommon (20%), Rare (8%), Legendary (1.9%), or Mythic (0.1%). Higher rarities feature more complex, exotic patterns. Mythic designs ship with a numbered holographic authenticity tag.",
+  },
+  {
+    q: "How long do designs last?",
+    a: "Unpurchased designs expire after 24 hours. Once expired, they're gone forever. Purchased designs are saved permanently to your account.",
+  },
+  {
+    q: "Can I get more rolls?",
+    a: "After your 3 free rolls, you can purchase additional roll credits. Credits are applied toward the purchase price of any product — so they're not wasted, they're a deposit toward your merch.",
+  },
+  {
+    q: "What products are available?",
+    a: "We offer all-over-print t-shirts, hoodies, leggings, and neckties. All apparel is printed using sublimation printing for vivid, permanent color that won't crack or fade.",
+  },
+  {
+    q: "How is the printing done?",
+    a: "We use sublimation printing through premium print-on-demand partners. The ink is infused directly into the fabric fibers, creating vivid, all-over coverage that's soft to the touch and built to last.",
+  },
+  {
+    q: "How long does shipping take?",
+    a: "Most orders ship within 3-5 business days of production. Delivery typically takes 5-10 business days depending on your location. You'll receive a tracking number once your order ships.",
+  },
+  {
+    q: "Can I return or exchange?",
+    a: "Since every item is custom-printed just for you, we can't accept returns for buyer's remorse. However, if your item arrives damaged or defective, we'll replace it at no cost. Contact us with photos of the issue.",
+  },
+  {
+    q: "Is this AI-generated art?",
+    a: "Yes. All designs are created by AI (specifically the FLUX.2 model). We believe in transparency — every product is labeled as AI-generated art.",
+  },
+];
+---
+
+<Base
+  title="FAQ — 8EyeTieDye"
+  description="Frequently asked questions about 8EyeTieDye AI-generated tie-dye merch."
+>
+  <section class="container mx-auto px-4 py-20 max-w-3xl">
+    <h1
+      class="text-4xl md:text-5xl font-display font-bold dye-gradient-text mb-12"
+    >
+      FAQ
+    </h1>
+
+    <div class="space-y-6">
+      {
+        faqs.map((faq) => (
+          <details class="group bg-surface-700 rounded-xl p-6 cursor-pointer">
+            <summary class="font-display font-semibold text-lg text-white flex items-center justify-between list-none">
+              {faq.q}
+              <svg
+                class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </summary>
+            <p class="mt-4 text-gray-400 leading-relaxed">{faq.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+</Base>

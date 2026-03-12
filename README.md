@@ -5,6 +5,7 @@ AI-generated tie-dye merchandise. Every design is unique, scarce, and generated 
 ## Concept
 
 Spider mascot brand. Users roll to generate AI tie-dye patterns, then purchase as print-on-demand merch. Two modes:
+
 - **Mystery Mode**: 1 random roll, take it or leave it
 - **Choose Mode**: 3 rolls, pick your favorite
 
@@ -18,15 +19,15 @@ Rarity system (Common 70%, Uncommon 20%, Rare 8%, Legendary 1.9%, Mythic 0.1%) d
 
 ## Stack
 
-| Component | Choice |
-|-----------|--------|
-| Frontend | Astro 5 + Svelte 5 islands |
-| AI Generation | TBD (Stable Diffusion / DALL-E) |
-| Backend | Cloudflare Workers |
-| POD | TBD (Gooten for ties, Printful/Gelato for apparel) |
-| Payments | Stripe (checkout + credit packs) |
-| Database | D1 + KV |
-| Hosting | CF Pages |
+| Component     | Choice                                             |
+| ------------- | -------------------------------------------------- |
+| Frontend      | Astro 5 + Svelte 5 islands                         |
+| AI Generation | TBD (Stable Diffusion / DALL-E)                    |
+| Backend       | Cloudflare Workers                                 |
+| POD           | TBD (Gooten for ties, Printful/Gelato for apparel) |
+| Payments      | Stripe (checkout + credit packs)                   |
+| Database      | D1 + KV                                            |
+| Hosting       | CF Pages                                           |
 
 ## Entity
 

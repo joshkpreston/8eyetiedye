@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "8eyetiedye",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2025-03-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "8eyetiedye-db",
+      "database_id": "530aa326-074c-48c7-afcc-bd2ed6506071"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "SESSIONS",
+      "id": "800c0473d5cb419fa85397bb185696b6"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "DESIGNS",
+      "bucket_name": "8eyetiedye-designs"
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "production"
+  }
+}
