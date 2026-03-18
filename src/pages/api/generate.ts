@@ -19,6 +19,7 @@ interface GenerateRequest {
   mode: "mystery" | "choose";
   preferences?: GenerationPreferences;
   turnstileToken: string;
+  email?: string;
 }
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -82,15 +83,35 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   // Check if user has credits
   let hasCredits = false;
+  let creditKey = "";
+  let currentCredits = 0;
   if (sessionRolls >= MAX_FREE_ROLLS) {
-    // Check for paid credits (would need user auth — for now, just cap at free)
-    if (!hasCredits) {
+    // Check for paid credits in KV — by session ID first, then by email
+    creditKey = `credits:${session.id}`;
+    currentCredits = parseInt(
+      (await env.SESSIONS.get(creditKey)) || "0",
+      10,
+    );
+
+    // If no credits by session ID, check by email (credits purchased via Stripe are keyed by email)
+    if (currentCredits <= 0 && body.email) {
+      creditKey = `credits:${body.email}`;
+      currentCredits = parseInt(
+        (await env.SESSIONS.get(creditKey)) || "0",
+        10,
+      );
+    }
+
+    if (currentCredits > 0) {
+      hasCredits = true;
+    } else {
       return json(
         {
           error: "No free rolls remaining",
           rollsUsed: sessionRolls,
           maxFreeRolls: MAX_FREE_ROLLS,
           needsCredits: true,
+          credits: 0,
         },
         402,
       );
@@ -166,6 +187,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
     { expirationTtl: DESIGN_TTL_SECONDS },
   );
 
+  // Deduct a credit if the user used paid credits
+  if (hasCredits && creditKey) {
+    const updatedCredits = currentCredits - 1;
+    if (updatedCredits > 0) {
+      await env.SESSIONS.put(creditKey, String(updatedCredits));
+    } else {
+      await env.SESSIONS.delete(creditKey);
+    }
+    currentCredits = updatedCredits;
+  }
+
   // Update roll counts
   await env.SESSIONS.put(rollCountKey, String(sessionRolls + 1), {
     expirationTtl: 30 * 24 * 60 * 60,
@@ -188,6 +220,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       rarity,
       rollsUsed: sessionRolls + 1,
       rollsRemaining: Math.max(0, MAX_FREE_ROLLS - sessionRolls - 1),
+      ...(hasCredits ? { credits: currentCredits } : {}),
     }),
     { status: 200, headers },
   );

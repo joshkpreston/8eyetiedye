@@ -13,6 +13,7 @@
     rarity: string;
     rollsUsed: number;
     rollsRemaining: number;
+    credits?: number;
   }
 
   let mode = $state<Mode>("mystery");
@@ -23,6 +24,8 @@
   let designs = $state<Design[]>([]);
   let showProducts = $state(false);
   let needsCredits = $state(false);
+  let credits = $state(0);
+  let creditEmail = $state("");
 
   async function buyCredits(packId: string) {
     try {
@@ -55,10 +58,16 @@
           preferences:
             mode === "choose" ? { colors: selectedPalette } : undefined,
           turnstileToken: "dev-token", // TODO: integrate Turnstile widget
+          ...(creditEmail ? { email: creditEmail } : {}),
         }),
       });
 
       const data = await res.json();
+
+      // Track credit balance from API response
+      if (typeof data.credits === "number") {
+        credits = data.credits;
+      }
 
       if (!res.ok) {
         if (data.needsCredits) {
@@ -168,6 +177,17 @@
     </div>
   {/if}
 
+  <!-- Credit balance display -->
+  {#if credits > 0 && state === "idle"}
+    <div class="text-center mb-4">
+      <span
+        class="inline-block px-4 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-sm font-display font-semibold"
+      >
+        Using credits ({credits} remaining)
+      </span>
+    </div>
+  {/if}
+
   <!-- Needs credits -->
   {#if needsCredits}
     <div
@@ -180,6 +200,40 @@
         Get more rolls to keep creating. Credits apply toward your next
         purchase!
       </p>
+
+      <!-- Email input to link purchased credits -->
+      <div class="mb-6">
+        <label for="credit-email" class="block text-sm text-gray-400 mb-2">
+          Already purchased credits? Enter your checkout email:
+        </label>
+        <div class="flex gap-2 max-w-sm mx-auto">
+          <input
+            id="credit-email"
+            type="email"
+            placeholder="you@example.com"
+            bind:value={creditEmail}
+            class="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500/50"
+          />
+          {#if creditEmail}
+            <button
+              onclick={generate}
+              class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg transition-all"
+            >
+              Use Credits
+            </button>
+          {/if}
+        </div>
+      </div>
+
+      <div class="relative mb-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-white/10"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-surface-700 text-gray-500">or buy more</span>
+        </div>
+      </div>
+
       <div class="grid grid-cols-3 gap-3 mb-6">
         <button
           onclick={() => buyCredits("pack-1")}
@@ -259,9 +313,13 @@
       <div class="flex items-center justify-between">
         <RarityBadge rarity={currentDesign.rarity} />
         <span class="text-xs text-gray-500">
-          {currentDesign.rollsRemaining} roll{currentDesign.rollsRemaining !== 1
-            ? "s"
-            : ""} remaining
+          {#if currentDesign.credits !== undefined && currentDesign.credits >= 0}
+            {currentDesign.credits} credit{currentDesign.credits !== 1 ? "s" : ""} remaining
+          {:else}
+            {currentDesign.rollsRemaining} free roll{currentDesign.rollsRemaining !== 1
+              ? "s"
+              : ""} remaining
+          {/if}
         </span>
       </div>
 
