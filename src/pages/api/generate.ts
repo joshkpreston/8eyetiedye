@@ -138,18 +138,10 @@ async function handleGenerate(
   // Generate image via Workers AI
   let imageData: ArrayBuffer;
   try {
-    const ai = (env as Record<string, unknown>).AI as {
-      run: (
-        model: string,
-        input: Record<string, unknown>,
-      ) => Promise<ArrayBuffer>;
-    };
-
-    if (!ai) {
+    if (!env.AI) {
       // Fallback: return a placeholder for local dev
       return json(
         {
-          error: "AI binding not available in dev mode",
           designId: crypto.randomUUID(),
           rarity,
           prompt,
@@ -161,12 +153,45 @@ async function handleGenerate(
       );
     }
 
-    imageData = (await ai.run("@cf/black-forest-labs/flux-1-schnell", {
+    const result = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
       prompt,
       width: 1024,
       height: 1024,
       num_steps: 4,
-    })) as ArrayBuffer;
+    });
+
+    // Workers AI may return a ReadableStream or an ArrayBuffer
+    if (result instanceof ReadableStream) {
+      const reader = result.getReader();
+      const chunks: Uint8Array[] = [];
+      let done = false;
+      while (!done) {
+        const { value, done: d } = await reader.read();
+        if (value) chunks.push(value);
+        done = d;
+      }
+      const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
+      const merged = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const chunk of chunks) {
+        merged.set(chunk, offset);
+        offset += chunk.length;
+      }
+      imageData = merged.buffer as ArrayBuffer;
+    } else if (result instanceof ArrayBuffer) {
+      imageData = result;
+    } else if (result && typeof result === "object" && "image" in result) {
+      // Some models return { image: base64string }
+      const b64 = (result as { image: string }).image;
+      const binary = atob(b64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      imageData = bytes.buffer as ArrayBuffer;
+    } else {
+      throw new Error(`Unexpected AI response type: ${typeof result}`);
+    }
   } catch (err) {
     console.error("AI generation failed:", err);
     return json({ error: "Image generation failed" }, 500);
