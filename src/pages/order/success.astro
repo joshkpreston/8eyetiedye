@@ -1,5 +1,37 @@
 ---
+export const prerender = false;
+
 import Base from "../../layouts/Base.astro";
+
+const sessionId = Astro.url.searchParams.get("session_id");
+const env = Astro.locals.runtime.env;
+
+let order: Record<string, unknown> | null = null;
+let design: Record<string, unknown> | null = null;
+
+if (sessionId) {
+  try {
+    const orderResult = await env.DB.prepare(
+      "SELECT * FROM orders WHERE stripe_session_id = ?",
+    )
+      .bind(sessionId)
+      .first();
+
+    if (orderResult) {
+      order = orderResult as Record<string, unknown>;
+      const designResult = await env.DB.prepare(
+        "SELECT * FROM designs WHERE id = ?",
+      )
+        .bind(order.design_id)
+        .first();
+      if (designResult) {
+        design = designResult as Record<string, unknown>;
+      }
+    }
+  } catch (err) {
+    console.error("Failed to fetch order details:", err);
+  }
+}
 ---
 
 <Base title="Order Confirmed — 8EyeTieDye">
@@ -10,6 +42,29 @@ import Base from "../../layouts/Base.astro";
       Your one-of-a-kind tie-dye design is being printed. You'll receive an
       email with tracking information once it ships.
     </p>
+
+    {order && (
+      <div class="bg-surface-700 rounded-2xl p-6 mb-8 border border-white/10">
+        <div class="flex items-start gap-6 mb-6">
+          {design && (
+            <div class="w-24 h-24 rounded-xl overflow-hidden bg-surface-600 shrink-0">
+              <img
+                src={`/api/design/${design.id}/image`}
+                alt="Your tie-dye design"
+                class="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          <div class="text-left">
+            <p class="text-sm text-gray-500 mb-1">Order</p>
+            <p class="font-display font-semibold text-lg">
+              #{(order.id as string).slice(0, 8)}
+            </p>
+            <p class="text-gray-400 mt-1">{order.product_type}</p>
+          </div>
+        </div>
+      </div>
+    )}
 
     <div
       class="bg-surface-700 rounded-2xl p-6 mb-8 text-left border border-white/10"
@@ -38,6 +93,14 @@ import Base from "../../layouts/Base.astro";
     </div>
 
     <div class="flex gap-4 justify-center">
+      {order && (
+        <a
+          href={`/order/${order.id}`}
+          class="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-display font-semibold rounded-xl transition-all"
+        >
+          Track Order
+        </a>
+      )}
       <a
         href="/generate"
         class="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-display font-semibold rounded-xl transition-all"
