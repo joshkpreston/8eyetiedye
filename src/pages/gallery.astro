@@ -44,7 +44,12 @@ const rarityOrder = { mythic: 0, legendary: 1, rare: 2 };
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {designs.map((design) => (
             <div class="rounded-2xl overflow-hidden border border-white/10 bg-surface-700">
-              <div class="aspect-square bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400" />
+              <img
+                src={`/api/design/${design.id}/image`}
+                alt={`${design.rarity} tie-dye design`}
+                class="aspect-square w-full object-cover"
+                loading="lazy"
+              />
               <div class="p-3 flex justify-between items-center">
                 <span
                   class={`text-xs font-display font-bold ${
