@@ -166,17 +166,15 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
       // Place Gooten order (neckties)
       if (product.podProvider === "gooten" && env.GOOTEN_API_KEY) {
         try {
-          const customerDetails = session.customer_details;
-          const address = customerDetails?.address;
+          const gootenShipping = session.shipping_details;
+          const address = gootenShipping?.address;
 
           if (address && product.gootenProductId) {
-            const nameParts = (customerDetails?.name || "").split(" ");
+            const nameParts = (gootenShipping?.name || "").split(" ");
             const firstName = nameParts[0] || "";
             const lastName = nameParts.slice(1).join(" ") || "";
 
-            const imageUrl = design?.r2Key
-              ? `https://8eyetiedye-designs.r2.dev/${design.r2Key}`
-              : "";
+            const imageUrl = `${url.origin}/api/design/${designId}/image`;
 
             const gootenOrder = await createGootenOrder(
               env.GOOTEN_API_KEY,
@@ -189,8 +187,8 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
                 State: address.state || "",
                 CountryCode: address.country || "",
                 PostalCode: address.postal_code || "",
-                Email: customerDetails?.email || "",
-                Phone: customerDetails?.phone || "",
+                Email: session.customer_details?.email || "",
+                Phone: session.customer_details?.phone || "",
               },
               [
                 {
