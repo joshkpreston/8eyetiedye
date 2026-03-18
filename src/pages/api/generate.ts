@@ -153,12 +153,26 @@ async function handleGenerate(
       );
     }
 
-    const result = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
-      prompt,
-      width: 1024,
-      height: 1024,
-      num_steps: 4,
-    });
+    // Try FLUX with retry, fall back to Stable Diffusion XL if FLUX fails
+    let result: unknown;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        result = await env.AI.run(
+          "@cf/black-forest-labs/flux-1-schnell",
+          { prompt, width: 1024, height: 1024, num_steps: 4 },
+        );
+        break;
+      } catch (modelErr) {
+        console.error(`FLUX attempt ${attempt + 1} failed:`, modelErr);
+        if (attempt === 1) {
+          // Final fallback: Stable Diffusion XL
+          result = await env.AI.run(
+            "@cf/stabilityai/stable-diffusion-xl-base-1.0",
+            { prompt, width: 1024, height: 1024 },
+          );
+        }
+      }
+    }
 
     // Workers AI may return a ReadableStream or an ArrayBuffer
     if (result instanceof ReadableStream) {
