@@ -4,6 +4,7 @@ import type { APIRoute } from "astro";
 import Stripe from "stripe";
 import { getProduct } from "../../../lib/products";
 import { createPrintfulOrder } from "../../../lib/pod/printful";
+import { createGootenOrder } from "../../../lib/pod/gooten";
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = locals.runtime.env;
@@ -31,6 +32,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const meta = session.metadata!;
+
+    // Handle credit pack purchases
+    if (meta.type === "credits") {
+      const rolls = parseInt(meta.rolls, 10);
+      const email =
+        session.customer_email || session.customer_details?.email || "";
+      if (email) {
+        const creditKey = `credits:${email}`;
+        const existing = parseInt(
+          (await env.SESSIONS.get(creditKey)) || "0",
+          10,
+        );
+        await env.SESSIONS.put(creditKey, String(existing + rolls));
+      }
+      return new Response("OK", { status: 200 });
+    }
 
     const designId = meta.designId;
     const productId = meta.productId;
@@ -142,7 +159,67 @@ export const POST: APIRoute = async ({ request, locals }) => {
             }
           }
         } catch (podErr) {
-          console.error("POD order placement failed:", podErr);
+          console.error("Printful order placement failed:", podErr);
+          // Don't fail the webhook — order is still recorded
+        }
+      }
+
+      // Place Gooten order (neckties)
+      if (product.podProvider === "gooten" && env.GOOTEN_API_KEY) {
+        try {
+          const customerDetails = session.customer_details;
+          const address = customerDetails?.address;
+
+          if (address && product.gootenProductId) {
+            const nameParts = (customerDetails?.name || "").split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+
+            const imageUrl = design?.r2Key
+              ? `https://8eyetiedye-designs.r2.dev/${design.r2Key}`
+              : "";
+
+            const gootenOrder = await createGootenOrder(
+              env.GOOTEN_API_KEY,
+              {
+                FirstName: firstName,
+                LastName: lastName,
+                Line1: address.line1 || "",
+                Line2: address.line2 || undefined,
+                City: address.city || "",
+                State: address.state || "",
+                CountryCode: address.country || "",
+                PostalCode: address.postal_code || "",
+                Email: customerDetails?.email || "",
+                Phone: customerDetails?.phone || "",
+              },
+              [
+                {
+                  SKU: product.gootenProductId,
+                  ShipCarrierMethodId: 1,
+                  Quantity: 1,
+                  Images: [
+                    {
+                      Url: imageUrl,
+                      Index: 0,
+                      ManipCommand: "",
+                      SpaceId: "0",
+                    },
+                  ],
+                },
+              ],
+              orderId,
+            );
+
+            // Update order with POD order ID
+            await env.DB.prepare(
+              `UPDATE orders SET pod_order_id = ?, status = 'processing' WHERE id = ?`,
+            )
+              .bind(gootenOrder.Id, orderId)
+              .run();
+          }
+        } catch (podErr) {
+          console.error("Gooten order placement failed:", podErr);
           // Don't fail the webhook — order is still recorded
         }
       }
