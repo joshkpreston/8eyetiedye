@@ -25,5 +25,32 @@
   ],
   "vars": {
     "ENVIRONMENT": "production"
+  },
+  "env": {
+    "staging": {
+      "name": "8eyetiedye-staging",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "8eyetiedye-db-staging",
+          "database_id": "aab22788-9e9e-404c-b43b-50ed25ddb0b4"
+        }
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "SESSIONS",
+          "id": "5bcb074a9f694c4d9244f9ef7aaa9c50"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "DESIGNS",
+          "bucket_name": "8eyetiedye-designs"
+        }
+      ],
+      "vars": {
+        "ENVIRONMENT": "staging"
+      }
+    }
   }
 }
