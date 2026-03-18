@@ -48,6 +48,13 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
+    shipping_address_collection: {
+      allowed_countries: [
+        "US", "CA", "GB", "AU", "DE", "FR", "JP", "NL",
+        "SE", "NO", "DK", "FI", "IT", "ES", "PT", "BE",
+        "AT", "CH", "IE", "NZ",
+      ],
+    },
     line_items: [
       {
         price_data: {

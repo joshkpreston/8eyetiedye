@@ -31,6 +31,28 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const orderId = event.data.order.external_id;
 
+  // Verify the referenced order exists in our database before processing
+  if (!orderId) {
+    console.error("Printful webhook: missing external_id");
+    return new Response("Invalid event: missing external_id", { status: 400 });
+  }
+
+  try {
+    const existingOrder = await env.DB.prepare(
+      `SELECT id FROM orders WHERE id = ?`,
+    )
+      .bind(orderId)
+      .first();
+
+    if (!existingOrder) {
+      console.error(`Printful webhook: order not found in DB: ${orderId}`);
+      return new Response("Order not found", { status: 404 });
+    }
+  } catch (err) {
+    console.error("Printful webhook: DB lookup failed:", err);
+    return new Response("Internal error", { status: 500 });
+  }
+
   if (event.type === "package_shipped" && event.data.shipment) {
     const shipment = event.data.shipment;
 

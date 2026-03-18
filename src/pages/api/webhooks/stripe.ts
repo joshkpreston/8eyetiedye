@@ -5,7 +5,7 @@ import Stripe from "stripe";
 import { getProduct } from "../../../lib/products";
 import { createPrintfulOrder } from "../../../lib/pod/printful";
 
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request, locals, url }) => {
   const env = locals.runtime.env;
   const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
@@ -96,27 +96,26 @@ export const POST: APIRoute = async ({ request, locals }) => {
       // In production, this would be a queue/durable object
       if (product.podProvider === "printful" && env.PRINTFUL_API_KEY) {
         try {
-          const customerDetails = session.customer_details;
-          const address = customerDetails?.address;
+          const shippingDetails = session.shipping_details;
+          const address = shippingDetails?.address;
 
           if (address && product.printfulVariantIds) {
             const variantId = product.printfulVariantIds[size];
             if (variantId) {
-              // Get public URL for the design image
-              const imageUrl = design?.r2Key
-                ? `https://8eyetiedye-designs.r2.dev/${design.r2Key}`
-                : "";
+              // Use the site's API route for a publicly accessible design image URL
+              const origin = url.origin;
+              const imageUrl = `${origin}/api/design/${designId}/image`;
 
               const printfulOrder = await createPrintfulOrder(
                 env.PRINTFUL_API_KEY,
                 {
-                  name: customerDetails?.name || "",
+                  name: shippingDetails?.name || "",
                   address1: address.line1 || "",
                   city: address.city || "",
                   state_code: address.state || "",
                   country_code: address.country || "",
                   zip: address.postal_code || "",
-                  email: customerDetails?.email || "",
+                  email: session.customer_details?.email || "",
                 },
                 [
                   {
@@ -124,7 +123,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
                     quantity: 1,
                     files: [
                       {
-                        type: "default",
+                        type: product.printfulFileType || "default",
                         url: imageUrl,
                       },
                     ],
