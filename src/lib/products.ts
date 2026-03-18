@@ -4,6 +4,7 @@ export interface Product {
   description: string;
   priceCents: number;
   podProvider: "printful" | "gooten";
+  printfulProductId?: number;
   printfulVariantIds?: Record<string, number>;
   gootenProductId?: string;
   sizes: string[];
@@ -17,15 +18,16 @@ export const PRODUCTS: Product[] = [
     id: "aop-tee",
     name: "All-Over Print Tee",
     description:
-      "Premium unisex all-over print t-shirt with your unique tie-dye design.",
+      "Premium all-over print crew neck t-shirt with your unique tie-dye design.",
     priceCents: 3999,
     podProvider: "printful",
+    printfulProductId: 257, // All-Over Print Men's Crew Neck T-Shirt
     printfulVariantIds: {
-      S: 9867,
-      M: 9868,
-      L: 9869,
-      XL: 9870,
-      "2XL": 9871,
+      S: 8851,
+      M: 8852,
+      L: 8853,
+      XL: 8854,
+      "2XL": 8855,
     },
     sizes: ["S", "M", "L", "XL", "2XL"],
     image: "/products/aop-tee.jpg",
@@ -35,15 +37,16 @@ export const PRODUCTS: Product[] = [
     id: "aop-hoodie",
     name: "All-Over Print Hoodie",
     description:
-      "Premium unisex all-over print hoodie with your unique tie-dye design.",
+      "Premium recycled unisex all-over print hoodie with your unique tie-dye design.",
     priceCents: 6499,
     podProvider: "printful",
+    printfulProductId: 388, // All-Over Print Recycled Unisex Hoodie
     printfulVariantIds: {
-      S: 14681,
-      M: 14682,
-      L: 14683,
-      XL: 14684,
-      "2XL": 14685,
+      S: 10870,
+      M: 10871,
+      L: 10872,
+      XL: 10873,
+      "2XL": 10874,
     },
     sizes: ["S", "M", "L", "XL", "2XL"],
     image: "/products/aop-hoodie.jpg",
@@ -56,11 +59,12 @@ export const PRODUCTS: Product[] = [
       "Premium all-over print leggings with your unique tie-dye design.",
     priceCents: 4499,
     podProvider: "printful",
+    printfulProductId: 189, // All-Over Print Leggings
     printfulVariantIds: {
-      S: 10930,
-      M: 10931,
-      L: 10932,
-      XL: 10933,
+      S: 7677,
+      M: 7678,
+      L: 7679,
+      XL: 7680,
     },
     sizes: ["S", "M", "L", "XL"],
     image: "/products/aop-leggings.jpg",

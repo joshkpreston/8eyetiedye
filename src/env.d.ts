@@ -15,6 +15,7 @@ type Runtime = import("@astrojs/cloudflare").Runtime<{
   SESSION_SECRET: string;
   FAL_KEY: string;
   PRINTFUL_API_KEY: string;
+  PRINTFUL_STORE_ID: string;
   GOOTEN_API_KEY: string;
 }>;
 

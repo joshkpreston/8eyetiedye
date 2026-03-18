@@ -26,6 +26,11 @@ CREATE TABLE IF NOT EXISTS orders (
   tracking_url TEXT,
   tracking_number TEXT,
   amount_cents INTEGER NOT NULL,
+  refund_status TEXT, -- 'partial' | 'full'
+  refund_amount_cents INTEGER,
+  dispute_status TEXT, -- 'warning_needs_response' | 'needs_response' | 'won' | 'lost'
+  stripe_payment_intent_id TEXT,
+  customer_email TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );

@@ -27,18 +27,27 @@ interface PrintfulOrderResponse {
   };
 }
 
+function buildHeaders(apiKey: string, storeId?: string): Record<string, string> {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+  };
+  if (storeId) {
+    headers["X-PF-Store-Id"] = storeId;
+  }
+  return headers;
+}
+
 export async function createPrintfulOrder(
   apiKey: string,
   recipient: PrintfulRecipient,
   items: PrintfulOrderItem[],
   externalId?: string,
+  storeId?: string,
 ): Promise<PrintfulOrderResponse> {
   const res = await fetch("https://api.printful.com/orders", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
+    headers: buildHeaders(apiKey, storeId),
     body: JSON.stringify({
       external_id: externalId,
       recipient,
@@ -58,11 +67,10 @@ export async function createPrintfulOrder(
 export async function getPrintfulOrder(
   apiKey: string,
   orderId: string,
+  storeId?: string,
 ): Promise<PrintfulOrderResponse> {
   const res = await fetch(`https://api.printful.com/orders/${orderId}`, {
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-    },
+    headers: buildHeaders(apiKey, storeId),
   });
 
   if (!res.ok) {
