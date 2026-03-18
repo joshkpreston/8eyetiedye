@@ -1,13 +1,13 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
+import { env } from "cloudflare:workers";
 import Stripe from "stripe";
 import { getProduct } from "../../../lib/products";
 import { createPrintfulOrder } from "../../../lib/pod/printful";
 import { createGootenOrder } from "../../../lib/pod/gooten";
 
-export const POST: APIRoute = async ({ request, locals, url }) => {
-  const env = locals.runtime.env;
+export const POST: APIRoute = async ({ request, url }) => {
   const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
   const body = await request.text();
@@ -34,7 +34,6 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
       case "checkout.session.completed": {
         await handleCheckoutCompleted(
           event.data.object as Stripe.Checkout.Session,
-          env,
           url,
         );
         break;
@@ -170,7 +169,6 @@ export const POST: APIRoute = async ({ request, locals, url }) => {
 
 async function handleCheckoutCompleted(
   session: Stripe.Checkout.Session,
-  env: App.Locals["runtime"]["env"],
   url: URL,
 ) {
   const meta = session.metadata!;

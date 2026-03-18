@@ -2,8 +2,7 @@
 export const prerender = false;
 
 import Base from "../layouts/Base.astro";
-
-const env = Astro.locals.runtime.env;
+import { env } from "cloudflare:workers";
 
 let designs: Record<string, unknown>[] = [];
 

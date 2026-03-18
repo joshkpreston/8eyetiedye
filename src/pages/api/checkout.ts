@@ -1,6 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
+import { env } from "cloudflare:workers";
 import { getStripe } from "../../lib/stripe";
 import { getProduct, formatPrice } from "../../lib/products";
 import { RARITY_TIERS } from "../../lib/rarity";
@@ -11,9 +12,7 @@ interface CheckoutRequest {
   size: string;
 }
 
-export const POST: APIRoute = async ({ request, locals, url }) => {
-  const env = locals.runtime.env;
-
+export const POST: APIRoute = async ({ request, url }) => {
   let body: CheckoutRequest;
   try {
     body = await request.json();

@@ -1,9 +1,9 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
+import { env } from "cloudflare:workers";
 
-export const GET: APIRoute = async ({ params, locals }) => {
-  const env = locals.runtime.env;
+export const GET: APIRoute = async ({ params }) => {
   const designId = params.id;
 
   if (!designId) {

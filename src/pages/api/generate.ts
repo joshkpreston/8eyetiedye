@@ -1,6 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
+import { env } from "cloudflare:workers";
 import { rollRarity } from "../../lib/rarity";
 import { buildPrompt, type GenerationPreferences } from "../../lib/prompts";
 import {
@@ -22,9 +23,21 @@ interface GenerateRequest {
   email?: string;
 }
 
-export const POST: APIRoute = async ({ request, locals }) => {
-  const env = locals.runtime.env;
+export const POST: APIRoute = async ({ request }) => {
+  try {
+    return await handleGenerate(request);
+  } catch (err) {
+    console.error("Unhandled error in generate:", err);
+    return json(
+      { error: err instanceof Error ? err.message : "Internal server error" },
+      500,
+    );
+  }
+};
 
+async function handleGenerate(
+  request: Request,
+): Promise<Response> {
   // Parse request
   let body: GenerateRequest;
   try {
@@ -224,7 +237,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }),
     { status: 200, headers },
   );
-};
+}
 
 function json(data: Record<string, unknown>, status: number): Response {
   return new Response(JSON.stringify(data), {

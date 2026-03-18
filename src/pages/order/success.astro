@@ -2,9 +2,9 @@
 export const prerender = false;
 
 import Base from "../../layouts/Base.astro";
+import { env } from "cloudflare:workers";
 
 const sessionId = Astro.url.searchParams.get("session_id");
-const env = Astro.locals.runtime.env;
 
 let order: Record<string, unknown> | null = null;
 let design: Record<string, unknown> | null = null;

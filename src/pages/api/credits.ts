@@ -1,6 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
+import { env } from "cloudflare:workers";
 import { getStripe } from "../../lib/stripe";
 
 const CREDIT_PACKS = [
@@ -9,9 +10,7 @@ const CREDIT_PACKS = [
   { id: "pack-15", rolls: 15, priceCents: 700, label: "15 Rolls" },
 ] as const;
 
-export const POST: APIRoute = async ({ request, locals, url }) => {
-  const env = locals.runtime.env;
-
+export const POST: APIRoute = async ({ request, url }) => {
   let body: { packId: string };
   try {
     body = await request.json();

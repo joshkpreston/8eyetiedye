@@ -2,9 +2,9 @@
 export const prerender = false;
 
 import Base from "../../layouts/Base.astro";
+import { env } from "cloudflare:workers";
 
 const orderId = Astro.params.id;
-const env = Astro.locals.runtime.env;
 
 let order = null;
 let design = null;

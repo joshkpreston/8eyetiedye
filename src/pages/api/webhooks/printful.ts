@@ -1,6 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
+import { env } from "cloudflare:workers";
 
 interface PrintfulWebhookEvent {
   type: string;
@@ -19,9 +20,7 @@ interface PrintfulWebhookEvent {
   };
 }
 
-export const POST: APIRoute = async ({ request, locals }) => {
-  const env = locals.runtime.env;
-
+export const POST: APIRoute = async ({ request }) => {
   let event: PrintfulWebhookEvent;
   try {
     event = await request.json();

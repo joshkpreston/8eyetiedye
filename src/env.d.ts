@@ -1,24 +1,19 @@
 /// <reference types="astro/client" />
 
-type D1Database = import("@cloudflare/workers-types").D1Database;
-type KVNamespace = import("@cloudflare/workers-types").KVNamespace;
-type R2Bucket = import("@cloudflare/workers-types").R2Bucket;
-
-type Runtime = import("@astrojs/cloudflare").Runtime<{
-  DB: D1Database;
-  SESSIONS: KVNamespace;
-  DESIGNS: R2Bucket;
-  ENVIRONMENT: string;
-  STRIPE_SECRET_KEY: string;
-  STRIPE_WEBHOOK_SECRET: string;
-  TURNSTILE_SECRET_KEY: string;
-  SESSION_SECRET: string;
-  FAL_KEY: string;
-  PRINTFUL_API_KEY: string;
-  PRINTFUL_STORE_ID: string;
-  GOOTEN_API_KEY: string;
-}>;
-
-declare namespace App {
-  interface Locals extends Runtime {}
+declare module "cloudflare:workers" {
+  interface Env {
+    DB: import("@cloudflare/workers-types").D1Database;
+    SESSIONS: import("@cloudflare/workers-types").KVNamespace;
+    DESIGNS: import("@cloudflare/workers-types").R2Bucket;
+    AI: import("@cloudflare/workers-types").Ai;
+    ENVIRONMENT: string;
+    STRIPE_SECRET_KEY: string;
+    STRIPE_WEBHOOK_SECRET: string;
+    TURNSTILE_SECRET_KEY: string;
+    SESSION_SECRET: string;
+    FAL_KEY: string;
+    PRINTFUL_API_KEY: string;
+    PRINTFUL_STORE_ID: string;
+    GOOTEN_API_KEY: string;
+  }
 }
