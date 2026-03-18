@@ -8,6 +8,8 @@ export interface Product {
   gootenProductId?: string;
   sizes: string[];
   image: string;
+  /** Printful file placement type (e.g., "default", "back", "preview"). Defaults to "default". */
+  printfulFileType?: string;
 }
 
 export const PRODUCTS: Product[] = [
@@ -27,6 +29,7 @@ export const PRODUCTS: Product[] = [
     },
     sizes: ["S", "M", "L", "XL", "2XL"],
     image: "/products/aop-tee.jpg",
+    printfulFileType: "default",
   },
   {
     id: "aop-hoodie",
@@ -44,6 +47,7 @@ export const PRODUCTS: Product[] = [
     },
     sizes: ["S", "M", "L", "XL", "2XL"],
     image: "/products/aop-hoodie.jpg",
+    printfulFileType: "default",
   },
   {
     id: "aop-leggings",
@@ -60,6 +64,7 @@ export const PRODUCTS: Product[] = [
     },
     sizes: ["S", "M", "L", "XL"],
     image: "/products/aop-leggings.jpg",
+    printfulFileType: "default",
   },
   {
     id: "necktie",
