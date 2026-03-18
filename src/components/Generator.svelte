@@ -271,8 +271,8 @@
   <!-- Generating spinner -->
   {#if state === "generating"}
     <div class="text-center py-16">
-      <div class="text-5xl animate-spin mb-4" style="animation-duration: 1.5s;">
-        🕸️
+      <div class="animate-spin mb-4" style="animation-duration: 1.5s;">
+        <img src="/spider.svg" alt="Doobie weaving" class="w-16 h-16 mx-auto" />
       </div>
       <p class="text-gray-400 font-display">Weaving your design...</p>
     </div>
