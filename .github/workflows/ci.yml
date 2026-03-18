@@ -84,12 +84,36 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
 
+      - name: Generate staging config
+        run: |
+          python3 -c "
+          import json
+          with open('dist/server/wrangler.json') as f:
+              config = json.load(f)
+          config['name'] = '8eyetiedye-staging'
+          config['vars']['ENVIRONMENT'] = 'staging'
+          config['d1_databases'] = [{'binding': 'DB', 'database_name': '8eyetiedye-db-staging', 'database_id': 'aab22788-9e9e-404c-b43b-50ed25ddb0b4'}]
+          config['kv_namespaces'] = [ns for ns in config['kv_namespaces'] if ns['binding'] != 'SESSIONS'] + [{'binding': 'SESSIONS', 'id': '5bcb074a9f694c4d9244f9ef7aaa9c50'}]
+          with open('dist/server/wrangler.staging.json', 'w') as f:
+              json.dump(config, f)
+          "
+
       - name: Deploy Staging
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --env staging
+          command: deploy --config dist/server/wrangler.staging.json
+
+      - name: Smoke test staging
+        run: |
+          sleep 5
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' https://staging.8eyetiedye.com/api/health)
+          if [ "$STATUS" != "200" ]; then
+            echo "Smoke test failed! Health endpoint returned $STATUS"
+            exit 1
+          fi
+          echo "Staging smoke test passed"
 
   # ── Pipeline 3: PR merge to main → check + deploy production ─────────────
   check-production:
@@ -147,3 +171,13 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
+
+      - name: Smoke test production
+        run: |
+          sleep 5
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' https://8eyetiedye.com/api/health)
+          if [ "$STATUS" != "200" ]; then
+            echo "Smoke test failed! Health endpoint returned $STATUS"
+            exit 1
+          fi
+          echo "Production smoke test passed"
