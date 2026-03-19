@@ -2,87 +2,24 @@
 export const prerender = false;
 
 import Base from "../layouts/Base.astro";
-import { env } from "cloudflare:workers";
-
-let designs: Record<string, unknown>[] = [];
-
-try {
-  const result = await env.DB.prepare(
-    `SELECT id, rarity, created_at FROM designs
-     WHERE rarity IN ('rare', 'legendary', 'mythic')
-     AND purchased_at IS NOT NULL
-     ORDER BY created_at DESC
-     LIMIT 50`,
-  ).all();
-
-  designs = (result.results as Record<string, unknown>[]) || [];
-} catch {
-  // Gallery is empty until purchases happen
-}
-
-const rarityOrder = { mythic: 0, legendary: 1, rare: 2 };
+import GalleryGrid from "../components/GalleryGrid.svelte";
 ---
 
 <Base
-  title="Gallery — 8EyeTieDye"
-  description="Browse the rarest AI-generated tie-dye designs ever created."
+  title="Design Gallery — 8EyeTieDye"
+  description="Browse all AI-generated tie-dye designs from the last 30 days."
 >
-  <section class="container mx-auto px-4 py-20">
-    <div class="text-center mb-12">
-      <h1 class="text-4xl md:text-5xl font-display font-bold mb-4">
-        <span class="dye-gradient-text">Gallery</span>
+  <section class="mx-auto px-2 py-12 max-w-[1600px]">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl md:text-4xl font-display font-bold mb-3">
+        <span class="dye-gradient-text">Design Gallery</span>
       </h1>
       <p class="text-gray-400 max-w-lg mx-auto">
-        The rarest drops. Only Rare, Legendary, and Mythic designs that were
-        purchased make it here.
+        Every design rolled in the last 30 days. Tap any tile to view, order, or
+        explore.
       </p>
     </div>
 
-    {
-      designs.length > 0 ? (
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {designs.map((design) => (
-            <div class="rounded-2xl overflow-hidden border border-white/10 bg-surface-700">
-              <img
-                src={`/api/design/${design.id}/image`}
-                alt={`${design.rarity} tie-dye design`}
-                class="aspect-square w-full object-cover"
-                loading="lazy"
-              />
-              <div class="p-3 flex justify-between items-center">
-                <span
-                  class={`text-xs font-display font-bold ${
-                    design.rarity === "mythic"
-                      ? "text-red-400"
-                      : design.rarity === "legendary"
-                        ? "text-amber-400"
-                        : "text-purple-400"
-                  }`}
-                >
-                  {(design.rarity as string).charAt(0).toUpperCase() +
-                    (design.rarity as string).slice(1)}
-                </span>
-                <span class="text-xs text-gray-500">
-                  {new Date(design.created_at as string).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div class="text-center py-16">
-          <img src="/spider.svg" alt="Doobie" class="w-16 h-16 mx-auto mb-4" />
-          <p class="text-gray-500 text-lg">
-            No rare designs purchased yet. Be the first!
-          </p>
-          <a
-            href="/generate"
-            class="inline-block mt-6 px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-display font-semibold rounded-xl transition-all"
-          >
-            Start Rolling
-          </a>
-        </div>
-      )
-    }
+    <GalleryGrid client:load />
   </section>
 </Base>

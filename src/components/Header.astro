@@ -1,4 +1,7 @@
 ---
+import HeaderUser from "./HeaderUser.svelte";
+import CartButton from "./CartButton.svelte";
+
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/generate", label: "Create" },
@@ -44,12 +47,16 @@ const currentPath = Astro.url.pathname;
       }
     </ul>
 
-    <a
-      href="/generate"
-      class="hidden md:inline-block px-5 py-2 bg-dye-purple hover:bg-dye-purple-dark text-white text-sm font-semibold rounded-lg transition-all hover:scale-105"
-    >
-      Spin the Web
-    </a>
+    <div class="hidden md:flex items-center gap-3">
+      <a
+        href="/generate"
+        class="px-5 py-2 bg-dye-purple hover:bg-dye-purple-dark text-white text-sm font-semibold rounded-lg transition-all hover:scale-105"
+      >
+        Spin the Web
+      </a>
+      <CartButton client:load />
+      <HeaderUser client:load />
+    </div>
 
     <!-- Mobile menu button -->
     <button

@@ -9,8 +9,10 @@ import {
   createSession,
   updateSession,
   sessionCookieString,
+  getIdentityKey,
 } from "../../lib/session";
 import { verifyTurnstile } from "../../lib/turnstile";
+import { generateDesignName } from "../../lib/names";
 
 const MAX_FREE_ROLLS = 3;
 const RATE_LIMIT_PER_DAY = 15;
@@ -73,9 +75,18 @@ async function handleGenerate(
     isNewSession = true;
   }
 
-  // Rate limiting via KV (IP-based fallback)
+  // Rate limiting via KV (hashed IP — not reversible, zero compliance risk)
   const ip = request.headers.get("cf-connecting-ip") || "unknown";
-  const rateLimitKey = `ratelimit:${ip}:${new Date().toISOString().slice(0, 10)}`;
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const hashBuffer = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(`${ip}:${dateStr}`),
+  );
+  const hashedIp = Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("")
+    .slice(0, 16); // 16 hex chars is plenty for rate limiting
+  const rateLimitKey = `ratelimit:${hashedIp}:${dateStr}`;
   const dailyRolls = parseInt(
     (await env.SESSIONS.get(rateLimitKey)) || "0",
     10,
@@ -87,8 +98,9 @@ async function handleGenerate(
     );
   }
 
-  // Roll limit check (session-based)
-  const rollCountKey = `rolls:${session.id}`;
+  // Roll limit check (identity-based: userId if logged in, sessionId otherwise)
+  const identityKey = getIdentityKey(session);
+  const rollCountKey = `rolls:${identityKey}`;
   const sessionRolls = parseInt(
     (await env.SESSIONS.get(rollCountKey)) || "0",
     10,
@@ -99,16 +111,17 @@ async function handleGenerate(
   let creditKey = "";
   let currentCredits = 0;
   if (sessionRolls >= MAX_FREE_ROLLS) {
-    // Check for paid credits in KV — by session ID first, then by email
-    creditKey = `credits:${session.id}`;
+    // Check for paid credits in KV — by identity key first, then by email
+    creditKey = `credits:${identityKey}`;
     currentCredits = parseInt(
       (await env.SESSIONS.get(creditKey)) || "0",
       10,
     );
 
-    // If no credits by session ID, check by email (credits purchased via Stripe are keyed by email)
-    if (currentCredits <= 0 && body.email) {
-      creditKey = `credits:${body.email}`;
+    // If no credits by identity key, check by email (credits purchased via Stripe are keyed by email)
+    if (currentCredits <= 0 && (body.email || session.email)) {
+      const email = body.email || session.email;
+      creditKey = `credits:${email}`;
       currentCredits = parseInt(
         (await env.SESSIONS.get(creditKey)) || "0",
         10,
@@ -140,9 +153,11 @@ async function handleGenerate(
   try {
     if (!env.AI) {
       // Fallback: return a placeholder for local dev
+      const devDesignName = generateDesignName(rarity);
       return json(
         {
           designId: crypto.randomUUID(),
+          designName: devDesignName,
           rarity,
           prompt,
           rollsUsed: sessionRolls + 1,
@@ -225,19 +240,54 @@ async function handleGenerate(
     },
   });
 
-  // Store metadata in KV (with 24h TTL)
+  // Generate a unique design name
+  const designName = generateDesignName(rarity);
+  const now = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+  // Store metadata in KV (with 24h TTL for image serving)
   await env.SESSIONS.put(
     `design:${designId}`,
     JSON.stringify({
       id: designId,
       r2Key,
       rarity,
+      name: designName,
       prompt,
       sessionId: session.id,
-      createdAt: new Date().toISOString(),
+      createdAt: now,
     }),
     { expirationTtl: DESIGN_TTL_SECONDS },
   );
+
+  // Store in D1 for gallery + persistence (30-day expiry)
+  await env.DB.prepare(
+    `INSERT INTO designs (id, session_id, user_id, name, username, image_url, prompt, rarity, is_public, expires_at, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+  )
+    .bind(
+      designId,
+      session.id,
+      session.userId || null,
+      designName,
+      session.username || null,
+      `/api/design/${designId}/image`,
+      prompt,
+      rarity,
+      expiresAt,
+      now,
+    )
+    .run();
+
+  // Append to designs list in KV (for navigation persistence)
+  const designsListKey = `designs:${identityKey}`;
+  const existingList = JSON.parse(
+    (await env.SESSIONS.get(designsListKey)) || "[]",
+  ) as string[];
+  existingList.push(designId);
+  await env.SESSIONS.put(designsListKey, JSON.stringify(existingList), {
+    expirationTtl: DESIGN_TTL_SECONDS,
+  });
 
   // Deduct a credit if the user used paid credits
   if (hasCredits && creditKey) {
@@ -268,6 +318,7 @@ async function handleGenerate(
   return new Response(
     JSON.stringify({
       designId,
+      designName,
       imageUrl: `/api/design/${designId}/image`,
       rarity,
       rollsUsed: sessionRolls + 1,

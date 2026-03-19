@@ -5,27 +5,54 @@ import Base from "../../layouts/Base.astro";
 import { env } from "cloudflare:workers";
 
 const sessionId = Astro.url.searchParams.get("session_id");
+const isMysteryPack = Astro.url.searchParams.get("type") === "mystery_pack";
 
-let order: Record<string, unknown> | null = null;
-let design: Record<string, unknown> | null = null;
+let orders: Record<string, unknown>[] = [];
+let orderGroup: Record<string, unknown> | null = null;
+let designs: Map<string, Record<string, unknown>> = new Map();
 
 if (sessionId) {
   try {
-    const orderResult = await env.DB.prepare(
-      "SELECT * FROM orders WHERE stripe_session_id = ?",
+    // Try order_groups first (new multi-item flow)
+    orderGroup = await env.DB.prepare(
+      "SELECT * FROM order_groups WHERE stripe_session_id = ?",
     )
       .bind(sessionId)
       .first();
 
-    if (orderResult) {
-      order = orderResult as Record<string, unknown>;
-      const designResult = await env.DB.prepare(
-        "SELECT * FROM designs WHERE id = ?",
+    if (orderGroup) {
+      const result = await env.DB.prepare(
+        "SELECT * FROM orders WHERE order_group_id = ?",
       )
-        .bind(order.design_id)
+        .bind(orderGroup.id)
+        .all();
+      orders = result.results as Record<string, unknown>[];
+    } else {
+      // Fallback: legacy single-item query
+      const singleOrder = await env.DB.prepare(
+        "SELECT * FROM orders WHERE stripe_session_id = ?",
+      )
+        .bind(sessionId)
         .first();
-      if (designResult) {
-        design = designResult as Record<string, unknown>;
+      if (singleOrder) {
+        orders = [singleOrder as Record<string, unknown>];
+      }
+    }
+
+    // Fetch design details for each order
+    for (const order of orders) {
+      if (order.design_id && !designs.has(order.design_id as string)) {
+        const design = await env.DB.prepare(
+          "SELECT * FROM designs WHERE id = ?",
+        )
+          .bind(order.design_id)
+          .first();
+        if (design) {
+          designs.set(
+            order.design_id as string,
+            design as Record<string, unknown>,
+          );
+        }
       }
     }
   } catch (err) {
@@ -37,65 +64,74 @@ if (sessionId) {
 <Base title="Order Confirmed — 8EyeTieDye">
   <section class="container mx-auto px-4 py-20 text-center max-w-2xl">
     <div class="text-6xl mb-6">🎉</div>
-    <h1 class="text-4xl font-display font-bold mb-4">Order Confirmed!</h1>
+    <h1 class="text-4xl font-display font-bold mb-4">
+      {isMysteryPack ? "Mystery Pack Purchased!" : "Order Confirmed!"}
+    </h1>
     <p class="text-gray-400 text-lg mb-8">
-      Your one-of-a-kind tie-dye design is being printed. You'll receive an
-      email with tracking information once it ships.
+      {isMysteryPack
+        ? "Your mystery designs have been generated and saved to your account!"
+        : "Your one-of-a-kind tie-dye designs are being printed. You'll receive an email with tracking information once they ship."}
     </p>
 
-    {order && (
-      <div class="bg-surface-700 rounded-2xl p-6 mb-8 border border-white/10">
-        <div class="flex items-start gap-6 mb-6">
-          {design && (
-            <div class="w-24 h-24 rounded-xl overflow-hidden bg-surface-600 shrink-0">
-              <img
-                src={`/api/design/${design.id}/image`}
-                alt="Your tie-dye design"
-                class="w-full h-full object-cover"
-              />
+    {orders.length > 0 && (
+      <div class="bg-surface-700 rounded-2xl p-6 mb-8 border border-white/10 space-y-4">
+        {orders.map((order) => {
+          const design = designs.get(order.design_id as string);
+          return (
+            <div class="flex items-start gap-4">
+              {design && (
+                <div class="w-16 h-16 rounded-xl overflow-hidden bg-surface-600 shrink-0">
+                  <img
+                    src={`/api/design/${design.id}/image`}
+                    alt={design.name as string || "Design"}
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div class="text-left flex-1">
+                <p class="font-display font-semibold text-sm text-white">
+                  {design?.name || `Order #${(order.id as string).slice(0, 8)}`}
+                </p>
+                <p class="text-gray-400 text-xs">
+                  {order.product_type} — Size {order.size || order.variant_id}
+                </p>
+              </div>
             </div>
-          )}
-          <div class="text-left">
-            <p class="text-sm text-gray-500 mb-1">Order</p>
-            <p class="font-display font-semibold text-lg">
-              #{(order.id as string).slice(0, 8)}
-            </p>
-            <p class="text-gray-400 mt-1">{order.product_type}</p>
-          </div>
-        </div>
+          );
+        })}
       </div>
     )}
 
-    <div
-      class="bg-surface-700 rounded-2xl p-6 mb-8 text-left border border-white/10"
-    >
-      <h2 class="font-display font-semibold text-lg mb-4">
-        What happens next?
-      </h2>
-      <ol class="space-y-3 text-gray-400">
-        <li class="flex gap-3">
-          <span class="text-purple-400 font-bold">1.</span>
-          Your design is sent to our print partner for production
-        </li>
-        <li class="flex gap-3">
-          <span class="text-purple-400 font-bold">2.</span>
-          Sublimation printing infuses the design into the fabric
-        </li>
-        <li class="flex gap-3">
-          <span class="text-purple-400 font-bold">3.</span>
-          Quality check and packaging
-        </li>
-        <li class="flex gap-3">
-          <span class="text-purple-400 font-bold">4.</span>
-          Ships to you within 3-5 business days
-        </li>
-      </ol>
-    </div>
+    {!isMysteryPack && (
+      <div class="bg-surface-700 rounded-2xl p-6 mb-8 text-left border border-white/10">
+        <h2 class="font-display font-semibold text-lg mb-4">
+          What happens next?
+        </h2>
+        <ol class="space-y-3 text-gray-400">
+          <li class="flex gap-3">
+            <span class="text-purple-400 font-bold">1.</span>
+            Your designs are sent to our print partner for production
+          </li>
+          <li class="flex gap-3">
+            <span class="text-purple-400 font-bold">2.</span>
+            Sublimation printing infuses each design into the fabric
+          </li>
+          <li class="flex gap-3">
+            <span class="text-purple-400 font-bold">3.</span>
+            Quality check and packaging
+          </li>
+          <li class="flex gap-3">
+            <span class="text-purple-400 font-bold">4.</span>
+            Ships to you within 3-5 business days
+          </li>
+        </ol>
+      </div>
+    )}
 
-    <div class="flex gap-4 justify-center">
-      {order && (
+    <div class="flex gap-4 justify-center flex-wrap">
+      {orders.length === 1 && orders[0] && (
         <a
-          href={`/order/${order.id}`}
+          href={`/order/${orders[0].id}`}
           class="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-display font-semibold rounded-xl transition-all"
         >
           Track Order
@@ -108,10 +144,10 @@ if (sessionId) {
         Spin Again
       </a>
       <a
-        href="/"
+        href="/gallery"
         class="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-display font-semibold rounded-xl transition-all"
       >
-        Home
+        Browse Gallery
       </a>
     </div>
   </section>
