@@ -7,10 +7,26 @@ ALTER TABLE designs ADD COLUMN username TEXT;
 ALTER TABLE designs ADD COLUMN expires_at TEXT;
 ALTER TABLE designs ADD COLUMN is_public INTEGER DEFAULT 1;
 
--- ─── users table: add username + OAuth fields ────────────────────────────────
-ALTER TABLE users ADD COLUMN username TEXT UNIQUE;
-ALTER TABLE users ADD COLUMN google_id TEXT UNIQUE;
-ALTER TABLE users ADD COLUMN avatar_url TEXT;
+-- ─── users table: recreate with username + OAuth fields ──────────────────────
+-- SQLite cannot add UNIQUE columns via ALTER TABLE, so we recreate.
+
+CREATE TABLE IF NOT EXISTS users_new (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE,
+  username TEXT UNIQUE,
+  google_id TEXT UNIQUE,
+  avatar_url TEXT,
+  stripe_customer_id TEXT UNIQUE,
+  stripe_card_fingerprint TEXT,
+  roll_credits INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+INSERT INTO users_new (id, email, stripe_customer_id, stripe_card_fingerprint, roll_credits, created_at)
+SELECT id, email, stripe_customer_id, stripe_card_fingerprint, roll_credits, created_at FROM users;
+
+DROP TABLE users;
+ALTER TABLE users_new RENAME TO users;
 
 -- ─── order_groups: one per Stripe checkout (multi-item support) ──────────────
 CREATE TABLE IF NOT EXISTS order_groups (

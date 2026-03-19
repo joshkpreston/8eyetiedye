@@ -54,6 +54,9 @@
           "bucket_name": "8eyetiedye-designs"
         }
       ],
+      "ai": {
+        "binding": "AI"
+      },
       "vars": {
         "ENVIRONMENT": "staging"
       }
