@@ -46,6 +46,14 @@ export interface SessionData {
   id: string;
   rolls: number;
   createdAt: number;
+  email?: string;
+  userId?: string;
+  username?: string;
+}
+
+/** Returns the stable identity key for KV lookups (userId if logged in, sessionId otherwise) */
+export function getIdentityKey(session: SessionData): string {
+  return session.userId || session.id;
 }
 
 export async function createSession(secret: string): Promise<{

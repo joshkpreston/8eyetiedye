@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import ActivityTicker from "../components/ActivityTicker.svelte";
 ---
 
 <Base title="8EyeTieDye — AI-Generated Tie-Dye Merch">
@@ -27,6 +28,9 @@ import Base from "../layouts/Base.astro";
       </a>
     </div>
   </section>
+
+  <!-- Activity Ticker -->
+  <ActivityTicker client:load />
 
   <!-- How It Works -->
   <section class="bg-surface-800/50 py-20">
