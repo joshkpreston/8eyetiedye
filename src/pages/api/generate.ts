@@ -37,9 +37,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 };
 
-async function handleGenerate(
-  request: Request,
-): Promise<Response> {
+async function handleGenerate(request: Request): Promise<Response> {
   // Parse request
   let body: GenerateRequest;
   try {
@@ -113,19 +111,13 @@ async function handleGenerate(
   if (sessionRolls >= MAX_FREE_ROLLS) {
     // Check for paid credits in KV — by identity key first, then by email
     creditKey = `credits:${identityKey}`;
-    currentCredits = parseInt(
-      (await env.SESSIONS.get(creditKey)) || "0",
-      10,
-    );
+    currentCredits = parseInt((await env.SESSIONS.get(creditKey)) || "0", 10);
 
     // If no credits by identity key, check by email (credits purchased via Stripe are keyed by email)
     if (currentCredits <= 0 && (body.email || session.email)) {
       const email = body.email || session.email;
       creditKey = `credits:${email}`;
-      currentCredits = parseInt(
-        (await env.SESSIONS.get(creditKey)) || "0",
-        10,
-      );
+      currentCredits = parseInt((await env.SESSIONS.get(creditKey)) || "0", 10);
     }
 
     if (currentCredits > 0) {
@@ -172,10 +164,12 @@ async function handleGenerate(
     let result: unknown;
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        result = await env.AI.run(
-          "@cf/black-forest-labs/flux-1-schnell",
-          { prompt, width: 1024, height: 1024, num_steps: 4 },
-        );
+        result = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
+          prompt,
+          width: 1024,
+          height: 1024,
+          num_steps: 4,
+        });
         break;
       } catch (modelErr) {
         console.error(`FLUX attempt ${attempt + 1} failed:`, modelErr);
@@ -243,7 +237,9 @@ async function handleGenerate(
   // Generate a unique design name
   const designName = generateDesignName(rarity);
   const now = new Date().toISOString();
-  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  const expiresAt = new Date(
+    Date.now() + 30 * 24 * 60 * 60 * 1000,
+  ).toISOString();
 
   // Store metadata in KV (with 24h TTL for image serving)
   await env.SESSIONS.put(

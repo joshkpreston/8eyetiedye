@@ -67,7 +67,12 @@
             class="w-full h-full object-cover rounded-lg"
           />
         {:else}
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -84,7 +89,9 @@
           <span class="text-sm font-semibold text-white truncate">
             {product.name}
           </span>
-          <span class="text-sm font-display font-bold text-purple-400 ml-2 shrink-0">
+          <span
+            class="text-sm font-display font-bold text-purple-400 ml-2 shrink-0"
+          >
             {formatPrice(product.priceCents)}
           </span>
         </div>

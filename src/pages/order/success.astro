@@ -68,75 +68,84 @@ if (sessionId) {
       {isMysteryPack ? "Mystery Pack Purchased!" : "Order Confirmed!"}
     </h1>
     <p class="text-gray-400 text-lg mb-8">
-      {isMysteryPack
-        ? "Your mystery designs have been generated and saved to your account!"
-        : "Your one-of-a-kind tie-dye designs are being printed. You'll receive an email with tracking information once they ship."}
+      {
+        isMysteryPack
+          ? "Your mystery designs have been generated and saved to your account!"
+          : "Your one-of-a-kind tie-dye designs are being printed. You'll receive an email with tracking information once they ship."
+      }
     </p>
 
-    {orders.length > 0 && (
-      <div class="bg-surface-700 rounded-2xl p-6 mb-8 border border-white/10 space-y-4">
-        {orders.map((order) => {
-          const design = designs.get(order.design_id as string);
-          return (
-            <div class="flex items-start gap-4">
-              {design && (
-                <div class="w-16 h-16 rounded-xl overflow-hidden bg-surface-600 shrink-0">
-                  <img
-                    src={`/api/design/${design.id}/image`}
-                    alt={design.name as string || "Design"}
-                    class="w-full h-full object-cover"
-                  />
+    {
+      orders.length > 0 && (
+        <div class="bg-surface-700 rounded-2xl p-6 mb-8 border border-white/10 space-y-4">
+          {orders.map((order) => {
+            const design = designs.get(order.design_id as string);
+            return (
+              <div class="flex items-start gap-4">
+                {design && (
+                  <div class="w-16 h-16 rounded-xl overflow-hidden bg-surface-600 shrink-0">
+                    <img
+                      src={`/api/design/${design.id}/image`}
+                      alt={(design.name as string) || "Design"}
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div class="text-left flex-1">
+                  <p class="font-display font-semibold text-sm text-white">
+                    {design?.name ||
+                      `Order #${(order.id as string).slice(0, 8)}`}
+                  </p>
+                  <p class="text-gray-400 text-xs">
+                    {order.product_type} — Size {order.size || order.variant_id}
+                  </p>
                 </div>
-              )}
-              <div class="text-left flex-1">
-                <p class="font-display font-semibold text-sm text-white">
-                  {design?.name || `Order #${(order.id as string).slice(0, 8)}`}
-                </p>
-                <p class="text-gray-400 text-xs">
-                  {order.product_type} — Size {order.size || order.variant_id}
-                </p>
               </div>
-            </div>
-          );
-        })}
-      </div>
-    )}
+            );
+          })}
+        </div>
+      )
+    }
 
-    {!isMysteryPack && (
-      <div class="bg-surface-700 rounded-2xl p-6 mb-8 text-left border border-white/10">
-        <h2 class="font-display font-semibold text-lg mb-4">
-          What happens next?
-        </h2>
-        <ol class="space-y-3 text-gray-400">
-          <li class="flex gap-3">
-            <span class="text-purple-400 font-bold">1.</span>
-            Your designs are sent to our print partner for production
-          </li>
-          <li class="flex gap-3">
-            <span class="text-purple-400 font-bold">2.</span>
-            Sublimation printing infuses each design into the fabric
-          </li>
-          <li class="flex gap-3">
-            <span class="text-purple-400 font-bold">3.</span>
-            Quality check and packaging
-          </li>
-          <li class="flex gap-3">
-            <span class="text-purple-400 font-bold">4.</span>
-            Ships to you within 3-5 business days
-          </li>
-        </ol>
-      </div>
-    )}
+    {
+      !isMysteryPack && (
+        <div class="bg-surface-700 rounded-2xl p-6 mb-8 text-left border border-white/10">
+          <h2 class="font-display font-semibold text-lg mb-4">
+            What happens next?
+          </h2>
+          <ol class="space-y-3 text-gray-400">
+            <li class="flex gap-3">
+              <span class="text-purple-400 font-bold">1.</span>
+              Your designs are sent to our print partner for production
+            </li>
+            <li class="flex gap-3">
+              <span class="text-purple-400 font-bold">2.</span>
+              Sublimation printing infuses each design into the fabric
+            </li>
+            <li class="flex gap-3">
+              <span class="text-purple-400 font-bold">3.</span>
+              Quality check and packaging
+            </li>
+            <li class="flex gap-3">
+              <span class="text-purple-400 font-bold">4.</span>
+              Ships to you within 3-5 business days
+            </li>
+          </ol>
+        </div>
+      )
+    }
 
     <div class="flex gap-4 justify-center flex-wrap">
-      {orders.length === 1 && orders[0] && (
-        <a
-          href={`/order/${orders[0].id}`}
-          class="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-display font-semibold rounded-xl transition-all"
-        >
-          Track Order
-        </a>
-      )}
+      {
+        orders.length === 1 && orders[0] && (
+          <a
+            href={`/order/${orders[0].id}`}
+            class="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-display font-semibold rounded-xl transition-all"
+          >
+            Track Order
+          </a>
+        )
+      }
       <a
         href="/generate"
         class="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-display font-semibold rounded-xl transition-all"

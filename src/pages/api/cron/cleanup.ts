@@ -31,7 +31,14 @@ async function runCleanup(): Promise<Response> {
     );
 
     if (ids.length === 0) {
-      return json({ message: "No expired designs to clean up", deletedDesigns: 0, deletedR2: 0 }, 200);
+      return json(
+        {
+          message: "No expired designs to clean up",
+          deletedDesigns: 0,
+          deletedR2: 0,
+        },
+        200,
+      );
     }
 
     // Delete R2 objects

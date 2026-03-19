@@ -29,7 +29,10 @@ export const POST: APIRoute = async ({ request, url }) => {
   // Mystery packs require login (designs must be saved to an account)
   if (!session?.userId) {
     return json(
-      { error: "Please sign in to purchase mystery packs. Designs are saved to your account." },
+      {
+        error:
+          "Please sign in to purchase mystery packs. Designs are saved to your account.",
+      },
       401,
     );
   }

@@ -42,17 +42,17 @@
     role="marquee"
     aria-live="off"
   >
-    <div
-      class="flex gap-8 whitespace-nowrap animate-ticker"
-      class:paused
-    >
+    <div class="flex gap-8 whitespace-nowrap animate-ticker" class:paused>
       <!-- Double the items for seamless loop -->
       {#each [...events, ...events] as event}
         <span class="text-sm shrink-0">
           <span class="text-gray-500">&#x1f3a8;</span>
           <span class="text-gray-300 font-medium">{event.username}</span>
           <span class="text-gray-500">rolled</span>
-          <span class="{RARITY_COLORS[event.rarity] || 'text-gray-400'} font-semibold">
+          <span
+            class="{RARITY_COLORS[event.rarity] ||
+              'text-gray-400'} font-semibold"
+          >
             {event.designName}
           </span>
         </span>

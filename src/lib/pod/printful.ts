@@ -27,7 +27,10 @@ interface PrintfulOrderResponse {
   };
 }
 
-function buildHeaders(apiKey: string, storeId?: string): Record<string, string> {
+function buildHeaders(
+  apiKey: string,
+  storeId?: string,
+): Record<string, string> {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${apiKey}`,
     "Content-Type": "application/json",

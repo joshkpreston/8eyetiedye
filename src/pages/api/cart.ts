@@ -24,10 +24,7 @@ async function getCart(identityKey: string): Promise<CartItem[]> {
   return JSON.parse(data) as CartItem[];
 }
 
-async function saveCart(
-  identityKey: string,
-  cart: CartItem[],
-): Promise<void> {
+async function saveCart(identityKey: string, cart: CartItem[]): Promise<void> {
   if (cart.length === 0) {
     await env.SESSIONS.delete(`cart:${identityKey}`);
     return;
@@ -76,7 +73,12 @@ export const POST: APIRoute = async ({ request }) => {
   const session = await getSession(request);
   if (!session) return json({ error: "No session" }, 401);
 
-  let body: { designId: string; designName: string; productId: string; size: string };
+  let body: {
+    designId: string;
+    designName: string;
+    productId: string;
+    size: string;
+  };
   try {
     body = await request.json();
   } catch {

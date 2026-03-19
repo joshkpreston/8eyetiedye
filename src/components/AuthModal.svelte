@@ -71,7 +71,12 @@
         class="text-gray-500 hover:text-white transition-colors"
         aria-label="Close"
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -86,10 +91,10 @@
       <!-- Success state -->
       <div class="text-center py-4">
         <div class="text-4xl mb-4">📧</div>
-        <h3 class="font-display font-semibold text-lg mb-2">Check your inbox</h3>
-        <p class="text-gray-400 text-sm mb-1">
-          We sent a magic link to
-        </p>
+        <h3 class="font-display font-semibold text-lg mb-2">
+          Check your inbox
+        </h3>
+        <p class="text-gray-400 text-sm mb-1">We sent a magic link to</p>
         <p class="text-white font-medium text-sm mb-4">{email}</p>
         <p class="text-gray-500 text-xs">
           Click the link in the email to sign in. It expires in 15 minutes.

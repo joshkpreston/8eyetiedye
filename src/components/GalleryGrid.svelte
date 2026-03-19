@@ -16,7 +16,14 @@
   let activeFilter = $state("all");
   let hoveredId = $state<string | null>(null);
 
-  const RARITY_FILTERS = ["all", "common", "uncommon", "rare", "legendary", "mythic"];
+  const RARITY_FILTERS = [
+    "all",
+    "common",
+    "uncommon",
+    "rare",
+    "legendary",
+    "mythic",
+  ];
 
   const RARITY_COLORS: Record<string, string> = {
     common: "bg-gray-500",
@@ -91,7 +98,9 @@
         ? 'bg-white text-black'
         : 'bg-white/5 text-gray-400 hover:bg-white/10'}"
     >
-      {filter === "all" ? "All" : filter.charAt(0).toUpperCase() + filter.slice(1)}
+      {filter === "all"
+        ? "All"
+        : filter.charAt(0).toUpperCase() + filter.slice(1)}
     </button>
   {/each}
 </div>

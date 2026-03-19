@@ -240,7 +240,8 @@
           No Free Rolls Remaining
         </h3>
         <p class="text-gray-400 mb-6">
-          Get more rolls to keep creating. Credits apply toward your next purchase!
+          Get more rolls to keep creating. Credits apply toward your next
+          purchase!
         </p>
 
         <!-- Email input to link purchased credits -->
@@ -391,9 +392,7 @@
         <!-- Previous designs grid -->
         {#if designs.length > 1}
           <div class="mt-4">
-            <h3
-              class="font-display font-semibold text-sm text-gray-400 mb-3"
-            >
+            <h3 class="font-display font-semibold text-sm text-gray-400 mb-3">
               Your Designs
             </h3>
             <div class="grid grid-cols-4 gap-2">
@@ -436,9 +435,7 @@
             <h2 class="font-display font-bold text-lg">
               {currentDesign.designName || "Your Design"}
             </h2>
-            <p class="text-gray-500 text-sm">
-              Choose products for this design
-            </p>
+            <p class="text-gray-500 text-sm">Choose products for this design</p>
           </div>
 
           <!-- Product list -->
@@ -458,7 +455,9 @@
 
   <!-- Error display -->
   {#if error}
-    <div class="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl max-w-2xl mx-auto">
+    <div
+      class="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl max-w-2xl mx-auto"
+    >
       <p class="text-red-400 text-sm">{error}</p>
       <button
         onclick={() => (error = "")}

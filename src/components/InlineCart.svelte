@@ -103,12 +103,18 @@
   }
 
   // Group items by design
-  function groupByDesign(
-    items: CartItem[],
-  ): { designName: string; rarity: string; items: (CartItem & { globalIndex: number })[] }[] {
+  function groupByDesign(items: CartItem[]): {
+    designName: string;
+    rarity: string;
+    items: (CartItem & { globalIndex: number })[];
+  }[] {
     const groups: Map<
       string,
-      { designName: string; rarity: string; items: (CartItem & { globalIndex: number })[] }
+      {
+        designName: string;
+        rarity: string;
+        items: (CartItem & { globalIndex: number })[];
+      }
     > = new Map();
 
     items.forEach((item, index) => {
@@ -135,7 +141,9 @@
 </script>
 
 <div id="inline-cart" class="border-t border-white/10 pt-4">
-  <h3 class="font-display font-semibold text-sm text-gray-300 mb-3 flex items-center gap-2">
+  <h3
+    class="font-display font-semibold text-sm text-gray-300 mb-3 flex items-center gap-2"
+  >
     Your Cart
     {#if cart.itemCount > 0}
       <span
@@ -155,7 +163,9 @@
       {#each groupByDesign(cart.items) as group}
         <!-- Design group header -->
         <div>
-          <p class="text-xs font-semibold text-gray-400 mb-1.5 flex items-center gap-1.5">
+          <p
+            class="text-xs font-semibold text-gray-400 mb-1.5 flex items-center gap-1.5"
+          >
             <span
               class="w-1.5 h-1.5 rounded-full {group.rarity === 'mythic'
                 ? 'bg-red-500'
@@ -172,9 +182,7 @@
 
           <!-- Items under this design -->
           {#each group.items as item}
-            <div
-              class="flex items-center gap-2 py-1.5 pl-3 text-sm group/item"
-            >
+            <div class="flex items-center gap-2 py-1.5 pl-3 text-sm group/item">
               <div class="flex-1 min-w-0">
                 <span class="text-gray-300">
                   {PRODUCT_NAMES[item.productId] || item.productId}
@@ -257,7 +265,12 @@
       {#if isCheckingOut}
         Processing...
       {:else}
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"

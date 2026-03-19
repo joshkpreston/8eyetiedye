@@ -5,7 +5,10 @@ import { env } from "cloudflare:workers";
 
 export const GET: APIRoute = async ({ url }) => {
   const page = parseInt(url.searchParams.get("page") || "1", 10);
-  const limit = Math.min(parseInt(url.searchParams.get("limit") || "60", 10), 120);
+  const limit = Math.min(
+    parseInt(url.searchParams.get("limit") || "60", 10),
+    120,
+  );
   const rarity = url.searchParams.get("rarity") || "all";
   const offset = (page - 1) * limit;
 
@@ -24,7 +27,9 @@ export const GET: APIRoute = async ({ url }) => {
   query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
   bindings.push(limit, offset);
 
-  const result = await env.DB.prepare(query).bind(...bindings).all();
+  const result = await env.DB.prepare(query)
+    .bind(...bindings)
+    .all();
 
   // Get total count for pagination
   let countQuery = `SELECT COUNT(*) as total FROM designs WHERE is_public = 1 AND expires_at > datetime('now')`;

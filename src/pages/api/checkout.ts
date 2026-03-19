@@ -64,7 +64,8 @@ async function handleSingleItemCheckout(
   const design = JSON.parse(designData);
   const product = getProduct(productId);
   if (!product) return json({ error: "Invalid product" }, 400);
-  if (!product.sizes.includes(size)) return json({ error: "Invalid size" }, 400);
+  if (!product.sizes.includes(size))
+    return json({ error: "Invalid size" }, 400);
 
   const rarity = RARITY_TIERS[design.rarity as keyof typeof RARITY_TIERS];
 
@@ -162,11 +163,9 @@ async function handleCartCheckout(
 
   // Store cart snapshot in KV (Stripe metadata has 500-char limit)
   const cartRef = crypto.randomUUID();
-  await env.SESSIONS.put(
-    `checkout-cart:${cartRef}`,
-    JSON.stringify(cart),
-    { expirationTtl: 3600 },
-  );
+  await env.SESSIONS.put(`checkout-cart:${cartRef}`, JSON.stringify(cart), {
+    expirationTtl: 3600,
+  });
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -187,9 +186,26 @@ async function handleCartCheckout(
 }
 
 const ALLOWED_COUNTRIES: string[] = [
-  "US", "CA", "GB", "AU", "DE", "FR", "JP", "NL",
-  "SE", "NO", "DK", "FI", "IT", "ES", "PT", "BE",
-  "AT", "CH", "IE", "NZ",
+  "US",
+  "CA",
+  "GB",
+  "AU",
+  "DE",
+  "FR",
+  "JP",
+  "NL",
+  "SE",
+  "NO",
+  "DK",
+  "FI",
+  "IT",
+  "ES",
+  "PT",
+  "BE",
+  "AT",
+  "CH",
+  "IE",
+  "NZ",
 ];
 
 function json(data: Record<string, unknown>, status: number): Response {

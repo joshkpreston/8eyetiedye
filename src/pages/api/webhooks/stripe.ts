@@ -147,11 +147,7 @@ export const POST: APIRoute = async ({ request, url }) => {
              SET stripe_payment_intent_id = ?, customer_email = ?, updated_at = datetime('now')
              WHERE design_id = ? AND stripe_payment_intent_id IS NULL`,
           )
-            .bind(
-              pi.id,
-              pi.receipt_email || "",
-              pi.metadata.designId,
-            )
+            .bind(pi.id, pi.receipt_email || "", pi.metadata.designId)
             .run();
         }
         break;
@@ -190,10 +186,7 @@ async function handleCheckoutCompleted(
       session.customer_email || session.customer_details?.email || "";
     if (email) {
       const creditKey = `credits:${email}`;
-      const existing = parseInt(
-        (await env.SESSIONS.get(creditKey)) || "0",
-        10,
-      );
+      const existing = parseInt((await env.SESSIONS.get(creditKey)) || "0", 10);
       await env.SESSIONS.put(creditKey, String(existing + rolls));
     }
     return;
@@ -289,14 +282,7 @@ async function handleSingleItemCheckout(
   }
 
   // Place POD order
-  await placePodOrder(
-    product,
-    session,
-    designId,
-    size,
-    orderId,
-    url,
-  );
+  await placePodOrder(product, session, designId, size, orderId, url);
 }
 
 // ─── Cart checkout (multi-item) ─────────────────────────────────────────────
@@ -544,13 +530,7 @@ async function handleMysteryPackPurchase(
     `INSERT INTO mystery_pack_purchases (id, user_id, stripe_session_id, pack_size, amount_cents, status)
      VALUES (?, ?, ?, ?, ?, 'completed')`,
   )
-    .bind(
-      purchaseId,
-      userId,
-      session.id,
-      count,
-      session.amount_total || 0,
-    )
+    .bind(purchaseId, userId, session.id, count, session.amount_total || 0)
     .run();
 
   // Generate N designs
@@ -570,10 +550,12 @@ async function handleMysteryPackPurchase(
         const prompt = buildPrompt(rarity);
         let result: unknown;
         try {
-          result = await env.AI.run(
-            "@cf/black-forest-labs/flux-1-schnell",
-            { prompt, width: 1024, height: 1024, num_steps: 4 },
-          );
+          result = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
+            prompt,
+            width: 1024,
+            height: 1024,
+            num_steps: 4,
+          });
         } catch {
           result = await env.AI.run(
             "@cf/stabilityai/stable-diffusion-xl-base-1.0",
@@ -642,9 +624,7 @@ async function upsertDesign(
   session: Stripe.Checkout.Session,
 ) {
   // Check if design already exists in D1
-  const existing = await env.DB.prepare(
-    "SELECT id FROM designs WHERE id = ?",
-  )
+  const existing = await env.DB.prepare("SELECT id FROM designs WHERE id = ?")
     .bind(designId)
     .first();
 

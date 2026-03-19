@@ -15,3 +15,5 @@ Thumbs.db
 .svelte-kit/
 .wrangler/
 .dev.vars
+.claude/
+client_secret_*.json

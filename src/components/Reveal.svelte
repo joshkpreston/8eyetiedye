@@ -61,7 +61,11 @@
       >
         <div class="text-center">
           <div class="animate-spin" style="animation-duration: 2s;">
-            <img src="/spider.svg" alt="Doobie spinning" class="w-16 h-16 mx-auto" />
+            <img
+              src="/spider.svg"
+              alt="Doobie spinning"
+              class="w-16 h-16 mx-auto"
+            />
           </div>
           <p class="text-gray-500 text-sm mt-4 font-display">
             Spinning the web...

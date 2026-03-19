@@ -83,10 +83,7 @@ export const GET: APIRoute = async ({ request, redirect }) => {
   });
 };
 
-async function migrateKvData(
-  oldKey: string,
-  newKey: string,
-): Promise<void> {
+async function migrateKvData(oldKey: string, newKey: string): Promise<void> {
   // Migrate rolls
   const rolls = await env.SESSIONS.get(`rolls:${oldKey}`);
   if (rolls) {

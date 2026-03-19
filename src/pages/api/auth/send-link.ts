@@ -24,10 +24,7 @@ export const POST: APIRoute = async ({ request, url }) => {
 
   // Rate limit: 3 magic links per email per hour
   const rateLimitKey = `authrate:${normalizedEmail}`;
-  const attempts = parseInt(
-    (await env.SESSIONS.get(rateLimitKey)) || "0",
-    10,
-  );
+  const attempts = parseInt((await env.SESSIONS.get(rateLimitKey)) || "0", 10);
   if (attempts >= RATE_LIMIT_PER_HOUR) {
     return json({ error: "Too many attempts. Try again later." }, 429);
   }
