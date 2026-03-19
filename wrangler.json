@@ -29,6 +29,9 @@
   "vars": {
     "ENVIRONMENT": "production"
   },
+  "triggers": {
+    "crons": ["0 3 * * *"]
+  },
   "env": {
     "staging": {
       "name": "8eyetiedye-staging",
