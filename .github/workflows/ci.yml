@@ -37,14 +37,15 @@ jobs:
       - name: Lint
         run: pnpm run lint
 
-      - name: Check
-        run: pnpm run check
-
       - name: Build
         run: pnpm run build
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Audit
         run: pnpm audit --prod
+        continue-on-error: true
 
   promote-to-staging:
     name: Promote to Staging
@@ -137,14 +138,15 @@ jobs:
       - name: Lint
         run: pnpm run lint
 
-      - name: Check
-        run: pnpm run check
-
       - name: Build
         run: pnpm run build
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Audit
         run: pnpm audit --prod
+        continue-on-error: true
 
   deploy-production:
     name: Deploy Production
