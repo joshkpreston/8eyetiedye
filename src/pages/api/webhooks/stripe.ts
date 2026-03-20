@@ -42,6 +42,15 @@ export const POST: APIRoute = async ({ request, url }) => {
     return new Response("Invalid signature", { status: 400 });
   }
 
+  // Idempotency: never process the same event twice
+  const eventKey = `stripe_event:${event.id}`;
+  const alreadyProcessed = await env.SESSIONS.get(eventKey);
+  if (alreadyProcessed) {
+    return new Response("Already processed", { status: 200 });
+  }
+  // Mark as processing immediately (24h TTL)
+  await env.SESSIONS.put(eventKey, "1", { expirationTtl: 86400 });
+
   try {
     switch (event.type) {
       case "checkout.session.completed": {

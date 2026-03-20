@@ -30,6 +30,52 @@
   let credits = $state(0);
   let creditEmail = $state("");
   let cartRefreshTrigger = $state(0);
+  let turnstileToken = $state("");
+  let turnstileWidgetId = $state<string | null>(null);
+
+  // Load Turnstile widget
+  $effect(() => {
+    // Check if Turnstile script is already loaded
+    if (typeof window !== "undefined" && !(window as any).turnstile) {
+      const script = document.createElement("script");
+      script.src =
+        "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+    (window as any).onTurnstileLoad = () => {
+      const container = document.getElementById("turnstile-container");
+      if (container && (window as any).turnstile) {
+        turnstileWidgetId = (window as any).turnstile.render(container, {
+          sitekey:
+            (
+              document.querySelector(
+                'meta[name="turnstile-sitekey"]',
+              ) as HTMLMetaElement
+            )?.content || "0x4AAAAAAA_test_sitekey",
+          callback: (token: string) => {
+            turnstileToken = token;
+          },
+          "expired-callback": () => {
+            turnstileToken = "";
+          },
+          theme: "dark",
+          size: "flexible",
+        });
+      }
+    };
+    // If already loaded (e.g. navigated back)
+    if ((window as any).turnstile) {
+      (window as any).onTurnstileLoad();
+    }
+  });
+
+  function resetTurnstile() {
+    if (turnstileWidgetId && (window as any).turnstile) {
+      (window as any).turnstile.reset(turnstileWidgetId);
+      turnstileToken = "";
+    }
+  }
 
   // Load persisted designs on mount
   $effect(() => {
@@ -83,7 +129,7 @@
           mode,
           preferences:
             mode === "choose" ? { colors: selectedPalette } : undefined,
-          turnstileToken: "dev-token", // TODO: integrate Turnstile widget
+          turnstileToken: turnstileToken || "dev-token",
           ...(creditEmail ? { email: creditEmail } : {}),
         }),
       });
@@ -118,6 +164,8 @@
     } catch {
       error = "Something went wrong. Please try again.";
       state = "idle";
+    } finally {
+      resetTurnstile();
     }
   }
 
@@ -199,8 +247,9 @@
         </p>
       {/if}
 
-      <!-- Generate button -->
+      <!-- Turnstile + Generate button -->
       <div class="text-center">
+        <div id="turnstile-container" class="flex justify-center mb-4"></div>
         <button
           onclick={generate}
           class="px-12 py-5 bg-purple-600 hover:bg-purple-700 text-white font-display font-bold text-xl rounded-2xl transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-105 active:scale-95"

@@ -42,6 +42,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       rel="stylesheet"
     />
 
+    <meta
+      name="turnstile-sitekey"
+      content={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || ""}
+    />
     <title>{title}</title>
   </head>
   <body class="min-h-screen flex flex-col">
