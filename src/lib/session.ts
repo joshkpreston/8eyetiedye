@@ -1,5 +1,13 @@
 const ENCODER = new TextEncoder();
 
+/** Get the session secret, throwing if not configured */
+export function requireSessionSecret(secret: string | undefined): string {
+  if (!secret) {
+    throw new Error("SESSION_SECRET is not configured");
+  }
+  return secret;
+}
+
 async function getKey(secret: string): Promise<CryptoKey> {
   const keyData = ENCODER.encode(secret);
   return crypto.subtle.importKey(

@@ -5,7 +5,11 @@ import { env } from "cloudflare:workers";
 import { getStripe } from "../../lib/stripe";
 import { getProduct, formatPrice } from "../../lib/products";
 import { RARITY_TIERS } from "../../lib/rarity";
-import { parseSession, getIdentityKey } from "../../lib/session";
+import {
+  parseSession,
+  getIdentityKey,
+  requireSessionSecret,
+} from "../../lib/session";
 
 interface SingleItemRequest {
   designId: string;
@@ -110,7 +114,7 @@ async function handleCartCheckout(
   url: URL,
   stripe: ReturnType<typeof getStripe>,
 ): Promise<Response> {
-  const sessionSecret = env.SESSION_SECRET || "dev-secret-change-me";
+  const sessionSecret = requireSessionSecret(env.SESSION_SECRET);
   const userSession = await parseSession(
     request.headers.get("cookie"),
     sessionSecret,
@@ -211,6 +215,9 @@ const ALLOWED_COUNTRIES: string[] = [
 function json(data: Record<string, unknown>, status: number): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+    },
   });
 }

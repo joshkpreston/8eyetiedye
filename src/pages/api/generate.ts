@@ -10,6 +10,7 @@ import {
   updateSession,
   sessionCookieString,
   getIdentityKey,
+  requireSessionSecret,
 } from "../../lib/session";
 import { verifyTurnstile } from "../../lib/turnstile";
 import { generateDesignName } from "../../lib/names";
@@ -60,7 +61,7 @@ async function handleGenerate(request: Request): Promise<Response> {
   }
 
   // Session management
-  const sessionSecret = env.SESSION_SECRET || "dev-secret-change-me";
+  const sessionSecret = requireSessionSecret(env.SESSION_SECRET);
   let session = await parseSession(
     request.headers.get("cookie"),
     sessionSecret,

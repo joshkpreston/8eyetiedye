@@ -5,6 +5,7 @@ import { env } from "cloudflare:workers";
 
 interface PrintfulWebhookEvent {
   type: string;
+  retries: number;
   data: {
     order: {
       id: number;
@@ -21,21 +22,57 @@ interface PrintfulWebhookEvent {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  const body = await request.text();
+
+  // Verify webhook signature if secret is configured
+  if (env.PRINTFUL_WEBHOOK_SECRET) {
+    const signature = request.headers.get("x-printful-signature");
+    if (!signature) {
+      return new Response("Missing signature", { status: 401 });
+    }
+
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode(env.PRINTFUL_WEBHOOK_SECRET),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"],
+    );
+    const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(body));
+    const expected = Array.from(new Uint8Array(sig))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    if (signature !== expected) {
+      console.error("Printful webhook: signature mismatch");
+      return new Response("Invalid signature", { status: 401 });
+    }
+  }
+
   let event: PrintfulWebhookEvent;
   try {
-    event = await request.json();
+    event = JSON.parse(body);
   } catch {
     return new Response("Invalid body", { status: 400 });
   }
 
   const orderId = event.data.order.external_id;
 
-  // Verify the referenced order exists in our database before processing
   if (!orderId) {
     console.error("Printful webhook: missing external_id");
     return new Response("Invalid event: missing external_id", { status: 400 });
   }
 
+  // Idempotency: dedup by printful order id + event type
+  const eventKey = `printful_event:${event.data.order.id}:${event.type}`;
+  const alreadyProcessed = await env.SESSIONS.get(eventKey);
+  if (alreadyProcessed) {
+    return new Response("Already processed", { status: 200 });
+  }
+  await env.SESSIONS.put(eventKey, "1", { expirationTtl: 86400 });
+
+  // Verify the referenced order exists in our database
   try {
     const existingOrder = await env.DB.prepare(
       `SELECT id FROM orders WHERE id = ?`,

@@ -4,7 +4,7 @@ import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 import { getStripe } from "../../../lib/stripe";
 import { getMysteryPack } from "../../../lib/mystery-packs";
-import { parseSession } from "../../../lib/session";
+import { parseSession, requireSessionSecret } from "../../../lib/session";
 
 export const POST: APIRoute = async ({ request, url }) => {
   let body: { packId: string };
@@ -20,7 +20,7 @@ export const POST: APIRoute = async ({ request, url }) => {
   }
 
   // Get session to check if user is logged in
-  const sessionSecret = env.SESSION_SECRET || "dev-secret-change-me";
+  const sessionSecret = requireSessionSecret(env.SESSION_SECRET);
   const session = await parseSession(
     request.headers.get("cookie"),
     sessionSecret,

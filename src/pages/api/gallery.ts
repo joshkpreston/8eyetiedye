@@ -2,6 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
+import { RARITY_TIERS } from "../../lib/rarity";
 
 export const GET: APIRoute = async ({ url }) => {
   const page = parseInt(url.searchParams.get("page") || "1", 10);
@@ -19,9 +20,12 @@ export const GET: APIRoute = async ({ url }) => {
 
   const bindings: unknown[] = [];
 
-  if (rarity !== "all") {
+  const validRarity =
+    rarity !== "all" && rarity in RARITY_TIERS ? rarity : null;
+
+  if (validRarity) {
     query += ` AND rarity = ?`;
-    bindings.push(rarity);
+    bindings.push(validRarity);
   }
 
   query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
@@ -34,9 +38,9 @@ export const GET: APIRoute = async ({ url }) => {
   // Get total count for pagination
   let countQuery = `SELECT COUNT(*) as total FROM designs WHERE is_public = 1 AND expires_at > datetime('now')`;
   const countBindings: unknown[] = [];
-  if (rarity !== "all") {
+  if (validRarity) {
     countQuery += ` AND rarity = ?`;
-    countBindings.push(rarity);
+    countBindings.push(validRarity);
   }
   const countResult = await env.DB.prepare(countQuery)
     .bind(...countBindings)

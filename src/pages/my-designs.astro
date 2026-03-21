@@ -3,9 +3,9 @@ export const prerender = false;
 
 import Base from "../layouts/Base.astro";
 import { env } from "cloudflare:workers";
-import { parseSession } from "../lib/session";
+import { parseSession, requireSessionSecret } from "../lib/session";
 
-const sessionSecret = env.SESSION_SECRET || "dev-secret-change-me";
+const sessionSecret = requireSessionSecret(env.SESSION_SECRET);
 const session = await parseSession(
   Astro.request.headers.get("cookie"),
   sessionSecret,

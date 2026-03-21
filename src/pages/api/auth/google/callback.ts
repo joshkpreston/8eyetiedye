@@ -7,6 +7,7 @@ import {
   createSession,
   updateSession,
   getIdentityKey,
+  requireSessionSecret,
 } from "../../../../lib/session";
 import { generateUsername } from "../../../../lib/names";
 
@@ -100,7 +101,7 @@ export const GET: APIRoute = async ({ request, url, redirect }) => {
   }
 
   // Session setup
-  const sessionSecret = env.SESSION_SECRET || "dev-secret-change-me";
+  const sessionSecret = requireSessionSecret(env.SESSION_SECRET);
   let session = await parseSession(
     request.headers.get("cookie"),
     sessionSecret,

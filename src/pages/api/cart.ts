@@ -2,7 +2,11 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
-import { parseSession, getIdentityKey } from "../../lib/session";
+import {
+  parseSession,
+  getIdentityKey,
+  requireSessionSecret,
+} from "../../lib/session";
 import { getProduct } from "../../lib/products";
 
 interface CartItem {
@@ -189,7 +193,7 @@ export const DELETE: APIRoute = async ({ request }) => {
 };
 
 async function getSession(request: Request) {
-  const sessionSecret = env.SESSION_SECRET || "dev-secret-change-me";
+  const sessionSecret = requireSessionSecret(env.SESSION_SECRET);
   return parseSession(request.headers.get("cookie"), sessionSecret);
 }
 

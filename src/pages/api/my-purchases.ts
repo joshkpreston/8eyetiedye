@@ -2,10 +2,10 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
-import { parseSession } from "../../lib/session";
+import { parseSession, requireSessionSecret } from "../../lib/session";
 
 export const GET: APIRoute = async ({ request }) => {
-  const sessionSecret = env.SESSION_SECRET || "dev-secret-change-me";
+  const sessionSecret = requireSessionSecret(env.SESSION_SECRET);
   const session = await parseSession(
     request.headers.get("cookie"),
     sessionSecret,
