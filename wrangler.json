@@ -27,7 +27,8 @@
     "binding": "AI"
   },
   "vars": {
-    "ENVIRONMENT": "production"
+    "ENVIRONMENT": "production",
+    "PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAACtWcxyuvvP_rV0I"
   },
   "triggers": {
     "crons": ["0 3 * * *"]
@@ -58,7 +59,8 @@
         "binding": "AI"
       },
       "vars": {
-        "ENVIRONMENT": "staging"
+        "ENVIRONMENT": "staging",
+        "PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAACtWcxyuvvP_rV0I"
       }
     }
   }
