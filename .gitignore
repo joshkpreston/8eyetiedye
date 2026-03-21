@@ -17,3 +17,6 @@ Thumbs.db
 .dev.vars
 .claude/
 client_secret_*.json
+
+# Agent progress tracker (local only)
+TRACKER.md

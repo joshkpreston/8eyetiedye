@@ -7,13 +7,24 @@ interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  jsonLd?: Record<string, unknown>;
 }
 
 const {
   title,
   description = "AI-generated tie-dye designs. Every pattern is unique, never repeated. Spun just for you.",
   ogImage = "/og-default.jpg",
+  jsonLd,
 } = Astro.props;
+
+const organizationLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "8EyeTieDye",
+  url: "https://8eyetiedye.com",
+  logo: "https://8eyetiedye.com/spider.svg",
+  description: "AI-generated tie-dye designs printed on premium apparel.",
+};
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -46,6 +57,15 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       name="turnstile-sitekey"
       content={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || ""}
     />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(organizationLd)}
+    />
+    {
+      jsonLd && (
+        <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+      )
+    }
     <title>{title}</title>
   </head>
   <body class="min-h-screen flex flex-col">

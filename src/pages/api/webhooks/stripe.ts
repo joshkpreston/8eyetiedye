@@ -9,6 +9,7 @@ import { createGootenOrder } from "../../../lib/pod/gooten";
 import { rollRarity } from "../../../lib/rarity";
 import { buildPrompt } from "../../../lib/prompts";
 import { generateDesignName } from "../../../lib/names";
+import { sendOrderConfirmation } from "../../../lib/email";
 
 interface CartItem {
   designId: string;
@@ -292,6 +293,30 @@ async function handleSingleItemCheckout(
 
   // Place POD order
   await placePodOrder(product, session, designId, size, orderId, url);
+
+  // Send order confirmation email
+  const customerEmail = session.customer_details?.email;
+  if (customerEmail && env.RESEND_API_KEY) {
+    try {
+      await sendOrderConfirmation(
+        customerEmail,
+        groupId,
+        [
+          {
+            productName: product.name,
+            designName: design?.name || "Custom Design",
+            size,
+            priceCents: session.amount_total || product.priceCents,
+          },
+        ],
+        session.amount_total || product.priceCents,
+        url.origin,
+        env.RESEND_API_KEY,
+      );
+    } catch (emailErr) {
+      console.error("Order confirmation email failed:", emailErr);
+    }
+  }
 }
 
 // ─── Cart checkout (multi-item) ─────────────────────────────────────────────
@@ -512,6 +537,32 @@ async function handleCartCheckout(
       }
     } catch (podErr) {
       console.error("Gooten order placement failed:", podErr);
+    }
+  }
+
+  // Send order confirmation email
+  const customerEmail = session.customer_details?.email;
+  if (customerEmail && env.RESEND_API_KEY) {
+    try {
+      const emailItems = orderIds.map(({ item }) => {
+        const product = getProduct(item.productId);
+        return {
+          productName: product?.name || item.productId,
+          designName: item.designName || "Custom Design",
+          size: item.size,
+          priceCents: item.priceCents * item.quantity,
+        };
+      });
+      await sendOrderConfirmation(
+        customerEmail,
+        groupId,
+        emailItems,
+        session.amount_total || 0,
+        url.origin,
+        env.RESEND_API_KEY,
+      );
+    } catch (emailErr) {
+      console.error("Order confirmation email failed:", emailErr);
     }
   }
 

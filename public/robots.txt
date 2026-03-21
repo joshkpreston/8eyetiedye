@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /api/
+Disallow: /order/
+
+Sitemap: https://8eyetiedye.com/sitemap-index.xml
