@@ -63,6 +63,8 @@ const currentPath = Astro.url.pathname;
       id="mobile-menu-btn"
       class="md:hidden p-2 text-gray-400 hover:text-white"
       aria-label="Toggle menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
     >
       <svg
         class="w-6 h-6"
@@ -118,6 +120,14 @@ const currentPath = Astro.url.pathname;
   const btn = document.getElementById("mobile-menu-btn");
   const menu = document.getElementById("mobile-menu");
   btn?.addEventListener("click", () => {
-    menu?.classList.toggle("hidden");
+    const isHidden = menu?.classList.toggle("hidden");
+    btn?.setAttribute("aria-expanded", String(!isHidden));
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !menu?.classList.contains("hidden")) {
+      menu?.classList.add("hidden");
+      btn?.setAttribute("aria-expanded", "false");
+      btn?.focus();
+    }
   });
 </script>

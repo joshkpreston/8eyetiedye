@@ -49,24 +49,25 @@ export const GET: APIRoute = async ({ request, redirect }) => {
     user = { id: userId, username };
   }
 
-  // Get or create session
+  // Get existing session for data migration, then always create a fresh one
+  // (session fixation prevention — new ID on authentication)
   const sessionSecret = requireSessionSecret(env.SESSION_SECRET);
-  let session = await parseSession(
+  const oldSession = await parseSession(
     request.headers.get("cookie"),
     sessionSecret,
   );
 
-  const oldIdentityKey = session ? getIdentityKey(session) : null;
+  const oldIdentityKey = oldSession ? getIdentityKey(oldSession) : null;
 
-  if (!session) {
-    const created = await createSession(sessionSecret);
-    session = created.session;
-  }
-
-  // Upgrade session with user info
-  session.email = email;
-  session.userId = user.id;
-  session.username = user.username;
+  // Always create a new session with a fresh ID on login
+  const { session: newSession } = await createSession(sessionSecret);
+  const session: SessionData = {
+    ...newSession,
+    rolls: oldSession?.rolls || 0,
+    email,
+    userId: user.id,
+    username: user.username,
+  };
 
   // Migrate anonymous KV data to user-keyed entries
   if (oldIdentityKey && oldIdentityKey !== user.id) {

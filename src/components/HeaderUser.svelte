@@ -26,7 +26,15 @@
     await fetch("/api/auth/logout", { method: "POST" });
     window.location.href = "/";
   }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === "Escape" && showDropdown) {
+      showDropdown = false;
+    }
+  }
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="flex items-center gap-3">
   {#if auth.loggedIn}
@@ -34,7 +42,7 @@
     <div class="relative">
       <button
         onclick={() => (showDropdown = !showDropdown)}
-        class="w-8 h-8 rounded-full bg-purple-600 text-white text-sm font-bold flex items-center justify-center hover:bg-purple-700 transition-colors"
+        class="w-10 h-10 rounded-full bg-purple-600 text-white text-sm font-bold flex items-center justify-center hover:bg-purple-700 transition-colors"
         aria-label="Account menu"
       >
         {initial(auth.username)}
@@ -81,7 +89,7 @@
     </button>
     <button
       onclick={() => (showAuthModal = true)}
-      class="w-8 h-8 rounded-full bg-white/10 text-gray-400 text-sm flex items-center justify-center hover:bg-white/20 hover:text-white transition-colors"
+      class="w-10 h-10 rounded-full bg-white/10 text-gray-400 text-sm flex items-center justify-center hover:bg-white/20 hover:text-white transition-colors"
       aria-label="Sign in"
     >
       <svg

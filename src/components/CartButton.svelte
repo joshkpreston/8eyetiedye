@@ -20,7 +20,7 @@
 
 <button
   onclick={scrollToCart}
-  class="relative w-8 h-8 rounded-full bg-white/10 text-gray-400 flex items-center justify-center hover:bg-white/20 hover:text-white transition-colors"
+  class="relative w-10 h-10 rounded-full bg-white/10 text-gray-400 flex items-center justify-center hover:bg-white/20 hover:text-white transition-colors"
   aria-label="Cart ({itemCount} items)"
 >
   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -119,50 +119,47 @@
     class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-1"
   >
     {#each designs as design}
-      <div
-        class="relative aspect-square group cursor-pointer"
-        role="button"
-        tabindex="0"
+      <a
+        href="/design/{design.id}"
+        class="relative aspect-square group block"
         onmouseenter={() => (hoveredId = design.id)}
         onmouseleave={() => (hoveredId = null)}
         onfocus={() => (hoveredId = design.id)}
         onblur={() => (hoveredId = null)}
-        onkeydown={(e) => {
-          if (e.key === "Enter") window.location.href = `/design/${design.id}`;
-        }}
+        aria-label="{design.name || 'Untitled'} by {design.username || 'Anonymous'}, {design.rarity} rarity"
       >
         <img
           src={design.image_url || `/api/design/${design.id}/image`}
-          alt={design.name || "Design"}
+          alt="{design.name || 'Design'} — {design.rarity} rarity by {design.username || 'Anonymous'}"
           class="w-full h-full object-cover"
           loading="lazy"
         />
 
         <!-- Hover overlay -->
-        <div
+        <span
           class="absolute inset-0 bg-black/70 flex flex-col items-center justify-center p-2 transition-opacity
             {hoveredId === design.id ? 'opacity-100' : 'opacity-0'}"
+          aria-hidden="true"
         >
           <span
             class="w-2 h-2 rounded-full mb-1 {RARITY_COLORS[design.rarity] ||
               'bg-gray-500'}"
           ></span>
-          <p
+          <span
             class="text-white text-xs font-semibold text-center leading-tight mb-0.5"
           >
             {design.name || "Untitled"}
-          </p>
-          <p class="text-gray-400 text-[10px] mb-2">
+          </span>
+          <span class="text-gray-400 text-[10px] mb-2">
             by {design.username || "Anonymous"}
-          </p>
-          <a
-            href="/design/{design.id}"
-            class="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-semibold rounded-lg transition-colors"
+          </span>
+          <span
+            class="px-3 py-1 bg-purple-600 text-white text-[10px] font-semibold rounded-lg"
           >
             View Design
-          </a>
-        </div>
-      </div>
+          </span>
+        </span>
+      </a>
     {/each}
   </div>
 
