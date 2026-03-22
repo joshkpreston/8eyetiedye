@@ -73,7 +73,7 @@ async function runCleanup(): Promise<Response> {
       }
     }
 
-    console.log(
+    console.warn(
       `Cleanup complete: ${deletedDesigns} designs deleted, ${deletedR2} R2 objects removed, ${errors} errors`,
     );
   } catch (err) {

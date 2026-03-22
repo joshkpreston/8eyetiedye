@@ -66,7 +66,7 @@ export const POST: APIRoute = async ({ request, url }) => {
         const session = event.data.object as Stripe.Checkout.Session;
         const meta = session.metadata;
         if (meta?.designId) {
-          console.log(
+          console.warn(
             `Checkout expired for design ${meta.designId}, product ${meta.productId}`,
           );
         }
@@ -172,7 +172,7 @@ export const POST: APIRoute = async ({ request, url }) => {
       }
 
       default:
-        console.log(`Unhandled Stripe event type: ${event.type}`);
+        console.warn(`Unhandled Stripe event type: ${event.type}`);
     }
   } catch (err) {
     console.error(`Error handling ${event.type}:`, err);

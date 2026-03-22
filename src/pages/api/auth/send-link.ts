@@ -51,8 +51,8 @@ export const POST: APIRoute = async ({ request, url }) => {
       return json({ error: "Failed to send email. Please try again." }, 500);
     }
   } else {
-    // Dev mode: log the link
-    console.log(`[DEV] Magic link for ${normalizedEmail}: ${link}`);
+    // Dev mode: log token only (never log full URLs with secrets in production)
+    console.warn(`[DEV] No RESEND_API_KEY — magic link generated for ${normalizedEmail.split("@")[0]}@***`);
   }
 
   return json({ ok: true }, 200);
