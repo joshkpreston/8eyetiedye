@@ -37,7 +37,7 @@
     <h3 class="font-display font-semibold text-lg text-white mb-1">
       Mystery Design Packs
     </h3>
-    <p class="text-gray-500 text-sm">
+    <p class="text-gray-400 text-sm">
       Get multiple unique designs at once — the more you buy, the more you save
     </p>
   </div>
@@ -62,7 +62,7 @@
         >
           {formatPrice(pack.priceCents)}
         </div>
-        <div class="text-gray-500 text-xs mt-1">
+        <div class="text-gray-400 text-xs mt-1">
           {pricePerDesign(pack.priceCents, pack.count)}
         </div>
         {#if pack.savings}

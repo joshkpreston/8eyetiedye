@@ -239,7 +239,7 @@
 
       <!-- Roll info -->
       {#if currentDesign}
-        <p class="text-center text-sm text-gray-500 mb-4">
+        <p class="text-center text-sm text-gray-400 mb-4">
           {currentDesign.rollsRemaining} free roll{currentDesign.rollsRemaining !==
           1
             ? "s"
@@ -256,7 +256,7 @@
         >
           Spin the Web
         </button>
-        <p class="text-xs text-gray-600 mt-3">
+        <p class="text-xs text-gray-400 mt-3">
           {mode === "mystery"
             ? "A completely random design — you get what you get!"
             : "Influenced by your color palette selection"}
@@ -322,7 +322,7 @@
             <div class="w-full border-t border-white/10"></div>
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-surface-700 text-gray-500">or buy more</span>
+            <span class="px-2 bg-surface-700 text-gray-400">or buy more</span>
           </div>
         </div>
 
@@ -353,7 +353,7 @@
         </div>
         <button
           onclick={() => (needsCredits = false)}
-          class="text-sm text-gray-500 hover:text-gray-400"
+          class="text-sm text-gray-400 hover:text-gray-300"
         >
           Back to generator
         </button>
@@ -416,7 +416,7 @@
               </span>
             {/if}
           </div>
-          <span class="text-xs text-gray-500">
+          <span class="text-xs text-gray-400">
             {#if currentDesign.credits !== undefined && currentDesign.credits >= 0}
               {currentDesign.credits} credit{currentDesign.credits !== 1
                 ? "s"
@@ -470,7 +470,7 @@
           </div>
         {/if}
 
-        <p class="text-xs text-gray-600 text-center">
+        <p class="text-xs text-gray-400 text-center">
           Designs expire in 24 hours if not purchased. Gallery visibility: 30
           days.
         </p>
@@ -484,7 +484,7 @@
             <h2 class="font-display font-bold text-lg">
               {currentDesign.designName || "Your Design"}
             </h2>
-            <p class="text-gray-500 text-sm">Choose products for this design</p>
+            <p class="text-gray-400 text-sm">Choose products for this design</p>
           </div>
 
           <!-- Product list -->
@@ -506,6 +506,7 @@
   {#if error}
     <div
       class="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl max-w-2xl mx-auto"
+      role="alert"
     >
       <p class="text-red-400 text-sm">{error}</p>
       <button

@@ -21,7 +21,7 @@ import ActivityTicker from "../components/ActivityTicker.svelte";
       <p class="text-xl md:text-2xl text-gray-400 mb-4 max-w-2xl mx-auto">
         AI-generated tie-dye designs. Every pattern is unique, never repeated.
       </p>
-      <p class="text-lg text-gray-500 mb-10 max-w-xl mx-auto">
+      <p class="text-lg text-gray-400 mb-10 max-w-xl mx-auto">
         Spun just for you.
       </p>
       <a
@@ -34,7 +34,7 @@ import ActivityTicker from "../components/ActivityTicker.svelte";
   </section>
 
   <!-- Activity Ticker -->
-  <ActivityTicker client:load />
+  <ActivityTicker client:idle />
 
   <!-- How It Works -->
   <section class="bg-surface-800/50 py-20">
@@ -89,7 +89,7 @@ import ActivityTicker from "../components/ActivityTicker.svelte";
       <h2 class="text-3xl md:text-4xl font-display font-bold text-center mb-4">
         Rarity <span class="dye-gradient-text">Tiers</span>
       </h2>
-      <p class="text-gray-500 text-center mb-16 max-w-lg mx-auto">
+      <p class="text-gray-400 text-center mb-16 max-w-lg mx-auto">
         Every roll has a chance to drop something extraordinary. How lucky are
         you?
       </p>
@@ -100,7 +100,7 @@ import ActivityTicker from "../components/ActivityTicker.svelte";
           <div class="text-rarity-common font-display font-bold text-sm mb-1">
             Common
           </div>
-          <div class="text-gray-500 text-xs">70%</div>
+          <div class="text-gray-400 text-xs">70%</div>
         </div>
         <div
           class="p-4 rounded-xl bg-surface-700 border border-rarity-uncommon/20 text-center"
@@ -108,7 +108,7 @@ import ActivityTicker from "../components/ActivityTicker.svelte";
           <div class="text-rarity-uncommon font-display font-bold text-sm mb-1">
             Uncommon
           </div>
-          <div class="text-gray-500 text-xs">20%</div>
+          <div class="text-gray-400 text-xs">20%</div>
         </div>
         <div
           class="p-4 rounded-xl bg-surface-700 border border-rarity-rare/20 text-center"
@@ -116,7 +116,7 @@ import ActivityTicker from "../components/ActivityTicker.svelte";
           <div class="text-rarity-rare font-display font-bold text-sm mb-1">
             Rare
           </div>
-          <div class="text-gray-500 text-xs">8%</div>
+          <div class="text-gray-400 text-xs">8%</div>
         </div>
         <div
           class="p-4 rounded-xl bg-surface-700 border border-rarity-legendary/30 text-center"
@@ -126,7 +126,7 @@ import ActivityTicker from "../components/ActivityTicker.svelte";
           >
             Legendary
           </div>
-          <div class="text-gray-500 text-xs">1.9%</div>
+          <div class="text-gray-400 text-xs">1.9%</div>
         </div>
         <div
           class="col-span-2 md:col-span-1 p-4 rounded-xl bg-surface-700 border border-rarity-mythic/30 text-center"
@@ -134,7 +134,7 @@ import ActivityTicker from "../components/ActivityTicker.svelte";
           <div class="text-rarity-mythic font-display font-bold text-sm mb-1">
             Mythic
           </div>
-          <div class="text-gray-500 text-xs">0.1%</div>
+          <div class="text-gray-400 text-xs">0.1%</div>
         </div>
       </div>
     </div>

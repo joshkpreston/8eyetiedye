@@ -107,11 +107,11 @@
 
 {#if loading}
   <div class="text-center py-20">
-    <p class="text-gray-500">Loading designs...</p>
+    <p class="text-gray-400">Loading designs...</p>
   </div>
 {:else if designs.length === 0}
   <div class="text-center py-20">
-    <p class="text-gray-500">No designs found. Start rolling!</p>
+    <p class="text-gray-400">No designs found. Start rolling!</p>
   </div>
 {:else}
   <!-- Tile grid -->
@@ -165,7 +165,7 @@
 
   {#if loadingMore}
     <div class="text-center py-8">
-      <p class="text-gray-500 text-sm">Loading more...</p>
+      <p class="text-gray-400 text-sm">Loading more...</p>
     </div>
   {/if}
 {/if}

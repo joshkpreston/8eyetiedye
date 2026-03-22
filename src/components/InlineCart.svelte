@@ -155,7 +155,7 @@
   </h3>
 
   {#if cart.items.length === 0}
-    <p class="text-gray-600 text-sm py-4 text-center">
+    <p class="text-gray-400 text-sm py-4 text-center">
       Your cart is empty — add items above
     </p>
   {:else}
@@ -187,7 +187,7 @@
                 <span class="text-gray-300">
                   {PRODUCT_NAMES[item.productId] || item.productId}
                 </span>
-                <span class="text-gray-600 text-xs ml-1">({item.size})</span>
+                <span class="text-gray-400 text-xs ml-1">({item.size})</span>
               </div>
 
               <!-- Quantity controls -->
@@ -195,7 +195,8 @@
                 <button
                   onclick={() =>
                     updateQuantity(item.globalIndex, item.quantity - 1)}
-                  class="w-5 h-5 rounded bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white flex items-center justify-center text-xs transition-colors"
+                  class="w-6 h-6 rounded bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white flex items-center justify-center text-xs transition-colors"
+                  aria-label="Decrease quantity of {PRODUCT_NAMES[item.productId] || item.productId}"
                 >
                   -
                 </button>
@@ -205,7 +206,8 @@
                 <button
                   onclick={() =>
                     updateQuantity(item.globalIndex, item.quantity + 1)}
-                  class="w-5 h-5 rounded bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white flex items-center justify-center text-xs transition-colors"
+                  class="w-6 h-6 rounded bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white flex items-center justify-center text-xs transition-colors"
+                  aria-label="Increase quantity of {PRODUCT_NAMES[item.productId] || item.productId}"
                 >
                   +
                 </button>
@@ -219,7 +221,7 @@
               <!-- Remove -->
               <button
                 onclick={() => removeItem(item.globalIndex)}
-                class="text-gray-600 hover:text-red-400 transition-colors opacity-0 group-hover/item:opacity-100"
+                class="text-gray-400 hover:text-red-400 transition-colors opacity-0 group-hover/item:opacity-100 focus:opacity-100"
                 aria-label="Remove item"
               >
                 <svg
@@ -253,7 +255,7 @@
     </div>
 
     {#if error}
-      <p class="text-red-400 text-xs mb-2">{error}</p>
+      <p class="text-red-400 text-xs mb-2" role="alert">{error}</p>
     {/if}
 
     <!-- Checkout button -->

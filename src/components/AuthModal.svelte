@@ -62,13 +62,16 @@
 >
   <div
     class="bg-surface-800 border border-white/10 rounded-2xl shadow-2xl w-full max-w-sm p-6"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="auth-dialog-title"
   >
     <!-- Close button -->
     <div class="flex justify-between items-center mb-6">
-      <h2 class="font-display font-bold text-lg">Sign In</h2>
+      <h2 id="auth-dialog-title" class="font-display font-bold text-lg">Sign In</h2>
       <button
         onclick={onclose}
-        class="text-gray-500 hover:text-white transition-colors"
+        class="text-gray-400 hover:text-white transition-colors"
         aria-label="Close"
       >
         <svg
@@ -96,7 +99,7 @@
         </h3>
         <p class="text-gray-400 text-sm mb-1">We sent a magic link to</p>
         <p class="text-white font-medium text-sm mb-4">{email}</p>
-        <p class="text-gray-500 text-xs">
+        <p class="text-gray-400 text-xs">
           Click the link in the email to sign in. It expires in 15 minutes.
         </p>
       </div>
@@ -120,7 +123,7 @@
         </div>
 
         {#if error}
-          <p class="text-red-400 text-sm">{error}</p>
+          <p class="text-red-400 text-sm" role="alert">{error}</p>
         {/if}
 
         <button
@@ -137,7 +140,7 @@
             <div class="w-full border-t border-white/10"></div>
           </div>
           <div class="relative flex justify-center text-xs">
-            <span class="px-3 bg-surface-800 text-gray-500">or</span>
+            <span class="px-3 bg-surface-800 text-gray-400">or</span>
           </div>
         </div>
 
@@ -167,7 +170,7 @@
           Continue with Google
         </button>
 
-        <p class="text-xs text-gray-600 text-center">
+        <p class="text-xs text-gray-400 text-center">
           Sign in to save your purchased designs and sync rolls across devices.
         </p>
       </div>

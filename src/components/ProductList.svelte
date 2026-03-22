@@ -58,7 +58,7 @@
     >
       <!-- Product image placeholder -->
       <div
-        class="w-14 h-14 rounded-lg bg-white/5 shrink-0 flex items-center justify-center text-gray-600 text-xs"
+        class="w-14 h-14 rounded-lg bg-white/5 shrink-0 flex items-center justify-center text-gray-400 text-xs"
       >
         {#if product.image}
           <img

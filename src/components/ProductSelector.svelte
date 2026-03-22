@@ -131,7 +131,7 @@
   </div>
 
   {#if error}
-    <p class="text-red-400 text-sm">{error}</p>
+    <p class="text-red-400 text-sm" role="alert">{error}</p>
   {/if}
 
   <!-- Checkout button -->
@@ -147,7 +147,7 @@
     {/if}
   </button>
 
-  <p class="text-xs text-gray-500 text-center">
+  <p class="text-xs text-gray-400 text-center">
     Secure checkout via Stripe. All designs are AI-generated.
   </p>
 </div>

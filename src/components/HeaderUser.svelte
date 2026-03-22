@@ -62,7 +62,7 @@
             <p class="text-sm font-semibold text-white truncate">
               {auth.username}
             </p>
-            <p class="text-xs text-gray-500 truncate">{auth.email}</p>
+            <p class="text-xs text-gray-400 truncate">{auth.email}</p>
           </div>
           <a
             href="/my-designs"

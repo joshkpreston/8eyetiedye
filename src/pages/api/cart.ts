@@ -55,14 +55,11 @@ export const GET: APIRoute = async ({ request }) => {
   const identityKey = getIdentityKey(session);
   let cart = await getCart(identityKey);
 
-  // Validate designs still exist (prune expired)
-  const validated: CartItem[] = [];
-  for (const item of cart) {
-    const designData = await env.SESSIONS.get(`design:${item.designId}`);
-    if (designData) {
-      validated.push(item);
-    }
-  }
+  // Validate designs still exist (prune expired) — parallel KV lookups
+  const designChecks = await Promise.all(
+    cart.map((item) => env.SESSIONS.get(`design:${item.designId}`)),
+  );
+  const validated = cart.filter((_, i) => designChecks[i] !== null);
 
   // Save pruned cart if items were removed
   if (validated.length !== cart.length) {

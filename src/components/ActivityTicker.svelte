@@ -40,15 +40,15 @@
     onmouseenter={() => (paused = true)}
     onmouseleave={() => (paused = false)}
     role="marquee"
-    aria-live="off"
+    aria-label="Recent design activity"
   >
     <div class="flex gap-8 whitespace-nowrap animate-ticker" class:paused>
       <!-- Double the items for seamless loop -->
       {#each [...events, ...events] as event}
         <span class="text-sm shrink-0">
-          <span class="text-gray-500">&#x1f3a8;</span>
+          <span class="text-gray-400">&#x1f3a8;</span>
           <span class="text-gray-300 font-medium">{event.username}</span>
-          <span class="text-gray-500">rolled</span>
+          <span class="text-gray-400">rolled</span>
           <span
             class="{RARITY_COLORS[event.rarity] ||
               'text-gray-400'} font-semibold"

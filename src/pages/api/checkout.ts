@@ -135,17 +135,18 @@ async function handleCartCheckout(
     return json({ error: "Cart is empty" }, 400);
   }
 
-  // Validate all designs still exist
-  for (const item of cart) {
-    const designData = await env.SESSIONS.get(`design:${item.designId}`);
-    if (!designData) {
-      return json(
-        {
-          error: `Design "${item.designName}" has expired. Please remove it from your cart.`,
-        },
-        400,
-      );
-    }
+  // Validate all designs still exist — parallel KV lookups
+  const designChecks = await Promise.all(
+    cart.map((item) => env.SESSIONS.get(`design:${item.designId}`)),
+  );
+  const expiredItem = cart.find((_, i) => designChecks[i] === null);
+  if (expiredItem) {
+    return json(
+      {
+        error: `Design "${expiredItem.designName}" has expired. Please remove it from your cart.`,
+      },
+      400,
+    );
   }
 
   // Build line items

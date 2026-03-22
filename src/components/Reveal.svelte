@@ -67,7 +67,7 @@
               class="w-16 h-16 mx-auto"
             />
           </div>
-          <p class="text-gray-500 text-sm mt-4 font-display">
+          <p class="text-gray-400 text-sm mt-4 font-display">
             Spinning the web...
           </p>
         </div>

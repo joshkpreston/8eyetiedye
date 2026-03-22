@@ -70,6 +70,12 @@ body {
     0 0 60px rgba(34, 197, 94, 0.1);
 }
 
+/* Focus-visible outline for keyboard navigation (WCAG 2.4.7) */
+:focus-visible {
+  outline: 2px solid var(--color-dye-purple);
+  outline-offset: 2px;
+}
+
 /* Respect reduced motion preferences (WCAG 2.3.3) */
 @media (prefers-reduced-motion: reduce) {
   *,
