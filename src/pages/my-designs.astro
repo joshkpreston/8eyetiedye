@@ -44,7 +44,7 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 ---
 
-<Base title="My Designs — 8EyeTieDye">
+<Base title="My Designs — 8EyeTieDye" description="View and manage your collection of AI-generated tie-dye designs. Purchase history, mystery packs, and rolled designs all in one place.">
   <section class="container mx-auto px-4 py-12 max-w-5xl">
     {
       session?.userId ? (
@@ -116,9 +116,9 @@ const SOURCE_LABELS: Record<string, string> = {
       ) : (
         <div class="text-center py-20">
           <div class="text-5xl mb-4">🔒</div>
-          <h1 class="text-3xl font-display font-bold mb-4">
+          <h2 class="text-3xl font-display font-bold mb-4">
             Sign in to view your designs
-          </h1>
+          </h2>
           <p class="text-gray-400 mb-6">
             Create an account to save purchased designs and mystery packs to
             your collection.

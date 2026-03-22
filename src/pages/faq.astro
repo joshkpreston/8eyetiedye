@@ -43,11 +43,22 @@ const faqs = [
     a: "Yes. All designs are created by AI (specifically the FLUX.2 model). We believe in transparency — every product is labeled as AI-generated art.",
   },
 ];
+
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((faq) => ({
+    "@type": "Question",
+    name: faq.q,
+    acceptedAnswer: { "@type": "Answer", text: faq.a },
+  })),
+};
 ---
 
 <Base
   title="FAQ — 8EyeTieDye"
   description="Frequently asked questions about 8EyeTieDye AI-generated tie-dye merch."
+  jsonLd={faqLd}
 >
   <section class="container mx-auto px-4 py-20 max-w-3xl">
     <h1

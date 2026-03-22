@@ -26,13 +26,47 @@ if (id) {
 const isExpired =
   design?.expires_at && new Date(design.expires_at as string) < new Date();
 const showDesign = design && !isExpired;
+
+const designDescription = design
+  ? `${design.name || "Design"} — a ${(design.rarity as string) || "unique"} AI-generated tie-dye pattern. Available on premium tees, hoodies, and ties.`
+  : "Design not found on 8EyeTieDye.";
+
+const productLd = showDesign
+  ? {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: design!.name || "AI Tie-Dye Design",
+      image: `https://8eyetiedye.com/api/design/${design!.id}/image`,
+      description: `${(design!.rarity as string)?.charAt(0).toUpperCase()}${(design!.rarity as string)?.slice(1)} rarity AI-generated tie-dye design. Available on premium all-over-print apparel.`,
+      brand: { "@type": "Brand", name: "8EyeTieDye" },
+      offers: {
+        "@type": "AggregateOffer",
+        priceCurrency: "USD",
+        lowPrice: "29.99",
+        highPrice: "59.99",
+        availability: "https://schema.org/InStock",
+      },
+    }
+  : null;
+
+const breadcrumbLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Gallery", item: "https://8eyetiedye.com/gallery" },
+    { "@type": "ListItem", position: 2, name: (design?.name as string) || "Design" },
+  ],
+};
 ---
 
 <Base
   title={design
     ? `${design.name || "Design"} — 8EyeTieDye`
     : "Design Not Found — 8EyeTieDye"}
+  description={designDescription}
+  jsonLd={productLd ?? undefined}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd)} />
   <section class="mx-auto px-4 py-12 max-w-7xl">
     <nav class="mb-6 text-sm">
       <a
@@ -102,9 +136,9 @@ const showDesign = design && !isExpired;
           <div class="lg:w-[45%]">
             <div class="lg:sticky lg:top-20 space-y-6">
               <div>
-                <h2 class="font-display font-bold text-lg">
+                <h1 class="font-display font-bold text-lg">
                   {design!.name || "Design"}
-                </h2>
+                </h1>
                 <p class="text-gray-400 text-sm">
                   Choose products for this design
                 </p>
