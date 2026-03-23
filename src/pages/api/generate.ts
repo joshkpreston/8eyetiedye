@@ -161,25 +161,27 @@ async function handleGenerate(request: Request): Promise<Response> {
       );
     }
 
-    // Try FLUX with retry, fall back to Stable Diffusion XL if FLUX fails
+    // Try models in order: FLUX.2 Klein 9B → Klein 4B → FLUX.1 Schnell
+    const models = [
+      { id: "@cf/black-forest-labs/flux-2-klein-9b", steps: 4 },
+      { id: "@cf/black-forest-labs/flux-2-klein-4b", steps: 4 },
+      { id: "@cf/black-forest-labs/flux-1-schnell", steps: 4 },
+    ] as const;
+
     let result: unknown;
-    for (let attempt = 0; attempt < 2; attempt++) {
+    for (let i = 0; i < models.length; i++) {
       try {
-        result = await env.AI.run("@cf/black-forest-labs/flux-1-schnell", {
+        result = await env.AI.run(models[i].id, {
           prompt,
           width: 1024,
           height: 1024,
-          num_steps: 4,
+          num_steps: models[i].steps,
         });
         break;
       } catch (modelErr) {
-        console.error(`FLUX attempt ${attempt + 1} failed:`, modelErr);
-        if (attempt === 1) {
-          // Final fallback: Stable Diffusion XL
-          result = await env.AI.run(
-            "@cf/stabilityai/stable-diffusion-xl-base-1.0",
-            { prompt, width: 1024, height: 1024 },
-          );
+        console.error(`${models[i].id} failed:`, modelErr);
+        if (i === models.length - 1) {
+          throw modelErr;
         }
       }
     }
